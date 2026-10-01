@@ -1,0 +1,7806 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conciliador Contábil x Fiscal</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+
+:root{
+    --bg:#f4f6f8;
+    --card:#ffffff;
+    --primary:#123b63;
+    --primary-dark:#0b2945;
+    --secondary:#2f5f8f;
+    --text:#1f2933;
+    --muted:#6b7280;
+    --border:#d9dee5;
+    --danger:#a33a3a;
+    --success:#286749;
+    --sidebar:#111827;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+    width:245px;
+    background:var(--sidebar);
+    color:#fff;
+    padding:20px 14px;
+    overflow-y:auto;
+}
+
+.logo{
+    padding:8px 10px 22px;
+    border-bottom:1px solid rgba(255,255,255,.1);
+    margin-bottom:15px;
+}
+
+.logo h1{
+    font-size:18px;
+    margin:0 0 5px;
+}
+
+.logo span{
+    font-size:12px;
+    color:#aeb8c5;
+}
+
+.menu-title{
+    font-size:11px;
+    text-transform:uppercase;
+    color:#7f8a99;
+    margin:18px 10px 7px;
+}
+
+.sidebar button{
+    width:100%;
+    border:0;
+    background:transparent;
+    color:#d8dee7;
+    text-align:left;
+    padding:10px 11px;
+    border-radius:5px;
+    cursor:pointer;
+    font-size:13px;
+    margin-bottom:2px;
+}
+
+.sidebar button:hover{
+    background:#1b2737;
+}
+
+.sidebar button.active{
+    background:#234a73;
+    color:#fff;
+}
+
+.menu-cadastro{
+    display:none;
+    padding-left:10px;
+    margin-bottom:5px;
+}
+
+.menu-cadastro.open{
+    display:block;
+}
+
+.menu-cadastro button{
+    font-size:12px;
+    color:#cbd5e1;
+    padding:8px 11px;
+}
+
+.menu-cadastro button.active{
+    background:#1c3d60;
+}
+
+.menu-toggle{
+    display:flex !important;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.menu-arrow{
+    font-size:11px;
+    color:#94a3b8;
+}
+
+.main{
+    margin-left:245px;
+    min-height:100vh;
+}
+
+.topbar{
+    height:68px;
+    background:#fff;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 25px;
+    position:sticky;
+    top:0;
+    z-index:10;
+}
+
+.topbar-title{
+    font-size:18px;
+    font-weight:bold;
+    color:var(--primary-dark);
+}
+
+.competencia-global{
+    display:flex;
+    align-items:end;
+    gap:8px;
+}
+
+.competencia-global .field{
+    margin:0;
+}
+
+.content{
+    padding:25px;
+}
+
+.page{
+    display:none;
+}
+
+.page.active{
+    display:block;
+}
+
+.page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+    gap:15px;
+}
+
+.page-header h2{
+    margin:0;
+    font-size:22px;
+    color:var(--primary-dark);
+}
+
+.page-header p{
+    margin:5px 0 0;
+    color:var(--muted);
+    font-size:13px;
+}
+
+.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:7px;
+    padding:18px;
+    margin-bottom:18px;
+}
+
+.card h3{
+    margin:0 0 15px;
+    color:var(--primary-dark);
+    font-size:16px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+}
+
+.grid-2{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:14px;
+}
+
+.field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    margin-bottom:12px;
+}
+
+.field label{
+    font-size:12px;
+    font-weight:bold;
+    color:#4b5563;
+}
+
+.field input,
+.field select,
+.field textarea{
+    width:100%;
+    border:1px solid var(--border);
+    border-radius:5px;
+    padding:9px 10px;
+    background:#fff;
+    color:var(--text);
+    outline:none;
+    font-size:13px;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus{
+    border-color:var(--secondary);
+}
+
+.field textarea{
+    min-height:80px;
+    resize:vertical;
+}
+
+.buttons{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+}
+
+.btn{
+    border:1px solid var(--border);
+    background:#fff;
+    color:#374151;
+    padding:8px 13px;
+    border-radius:5px;
+    cursor:pointer;
+    font-size:13px;
+}
+
+.btn:hover{
+    background:#f3f4f6;
+}
+
+.btn-primary{
+    background:var(--primary);
+    border-color:var(--primary);
+    color:#fff;
+}
+
+.btn-primary:hover{
+    background:var(--primary-dark);
+}
+
+.btn-danger{
+    color:#fff;
+    background:var(--danger);
+    border-color:var(--danger);
+}
+
+.btn-success{
+    color:#fff;
+    background:var(--success);
+    border-color:var(--success);
+}
+
+.btn-small{
+    padding:7px 10px;
+    font-size:12px;
+}
+
+.filters{
+    display:flex;
+    gap:12px;
+    align-items:end;
+    flex-wrap:wrap;
+}
+
+.filters .field{
+    min-width:180px;
+    margin:0;
+}
+
+.filters .field.search{
+    flex:1;
+    min-width:250px;
+}
+
+.filter-actions{
+    display:flex;
+    gap:7px;
+    align-items:end;
+}
+
+.table-wrap{
+    overflow:auto;
+    border:1px solid var(--border);
+    border-radius:6px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:700px;
+    background:#fff;
+}
+
+th{
+    background:#eef2f6;
+    color:#374151;
+    font-size:12px;
+    text-align:left;
+    padding:10px;
+    border-bottom:1px solid var(--border);
+    white-space:nowrap;
+}
+
+td{
+    padding:9px 10px;
+    border-bottom:1px solid #edf0f3;
+    font-size:12px;
+    vertical-align:middle;
+}
+
+tr:hover td{
+    background:#fafbfd;
+}
+
+.badge{
+    display:inline-block;
+    padding:3px 7px;
+    border-radius:12px;
+    font-size:10px;
+    font-weight:bold;
+    background:#e8edf3;
+    color:#3c4a59;
+}
+
+.badge.blue{
+    background:#e2edf8;
+    color:#234a73;
+}
+
+.badge.green{
+    background:#e4f1e9;
+    color:#286749;
+}
+
+.badge.red{
+    background:#f4e5e5;
+    color:#913333;
+}
+
+.empty{
+    text-align:center;
+    padding:30px;
+    color:var(--muted);
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+}
+
+.stat{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:7px;
+    padding:18px;
+}
+
+.stat .label{
+    font-size:12px;
+    color:var(--muted);
+}
+
+.stat .value{
+    font-size:25px;
+    font-weight:bold;
+    margin-top:8px;
+    color:var(--primary-dark);
+}
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
+    z-index:100;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-content{
+    background:#fff;
+    width:min(800px,100%);
+    max-height:90vh;
+    overflow:auto;
+    border-radius:8px;
+    padding:20px;
+}
+
+.modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.modal-header h3{
+    margin:0;
+    color:var(--primary-dark);
+}
+
+.close{
+    border:0;
+    background:transparent;
+    font-size:22px;
+    cursor:pointer;
+    color:#666;
+}
+
+.notice{
+    padding:10px 12px;
+    border-radius:5px;
+    background:#edf3f8;
+    border:1px solid #d7e2ec;
+    color:#31516f;
+    font-size:12px;
+    margin-bottom:15px;
+}
+
+.file-input{
+    border:1px dashed #b8c2ce;
+    padding:20px;
+    border-radius:6px;
+    background:#fafbfc;
+}
+
+.cadastro-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
+
+.cadastro-card{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:7px;
+    padding:18px;
+    cursor:pointer;
+    transition:.15s;
+}
+
+.cadastro-card:hover{
+    border-color:var(--secondary);
+    background:#f8fafc;
+}
+
+.cadastro-card h3{
+    margin:0 0 7px;
+    color:var(--primary-dark);
+}
+
+.cadastro-card p{
+    margin:0;
+    color:var(--muted);
+    font-size:12px;
+}
+
+.vinculos{
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:10px;
+    background:#fafbfc;
+    max-height:240px;
+    overflow-y:auto;
+}
+
+.vinculo-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 5px;
+    border-bottom:1px solid #e9edf1;
+}
+
+.vinculo-item:last-child{
+    border-bottom:0;
+}
+
+.vinculo-item label{
+    font-size:12px;
+    cursor:pointer;
+    flex:1;
+}
+
+.vinculo-item input{
+    width:auto;
+}
+
+.vinculos-vazio{
+    color:var(--muted);
+    font-size:12px;
+    padding:8px;
+}
+
+.vinculados-resumo{
+    display:flex;
+    flex-wrap:wrap;
+    gap:5px;
+}
+
+.vinculados-resumo .badge{
+    margin-right:2px;
+}
+
+hr{
+    border:0;
+    border-top:1px solid var(--border);
+    margin:18px 0;
+}
+
+@media(max-width:1000px){
+
+    .grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .cadastro-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:700px){
+
+    .sidebar{
+        width:210px;
+    }
+
+    .main{
+        margin-left:210px;
+    }
+
+    .grid,
+    .grid-2,
+    .cadastro-grid{
+        grid-template-columns:1fr;
+    }
+
+    .stats{
+        grid-template-columns:1fr;
+    }
+
+    .topbar{
+        padding:0 12px;
+    }
+
+    .content{
+        padding:15px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ============================================================
+     MENU LATERAL
+============================================================ -->
+
+<div class="sidebar">
+
+    <div class="logo">
+        <h1>Conciliador Contábil</h1>
+        <span>Contábil x Fiscal</span>
+    </div>
+
+    <div class="menu-title">Principal</div>
+
+    <button onclick="abrirPagina('dashboard',this)"
+            class="active">
+        Dashboard
+    </button>
+
+    <div class="menu-title">Cadastros</div>
+
+    <!-- UM ÚNICO MENU DE CADASTRO -->
+
+    <button class="menu-toggle"
+            id="btnMenuCadastros"
+            onclick="alternarMenuCadastros()">
+
+        <span>Cadastros</span>
+
+        <span class="menu-arrow"
+              id="setaCadastros">
+            ▶
+        </span>
+
+    </button>
+
+    <div class="menu-cadastro" id="submenuCadastros">
+
+        <button onclick="abrirCadastro('acumuladores',this)">
+            Acumuladores
+        </button>
+
+        <button onclick="abrirCadastro('contas',this)">
+            Contas Contábeis
+        </button>
+
+        <button onclick="abrirCadastro('empresas',this)">
+            Matriz e Filiais
+        </button>
+
+        <button onclick="abrirCadastro('cfops',this)">
+            CFOP
+        </button>
+
+        <button onclick="abrirCadastro('naturezas',this)">
+            Natureza Kacyumara
+        </button>
+
+        <button onclick="abrirCadastro('historicos',this)">
+            Históricos
+        </button>
+
+    </div>
+
+    <div class="menu-title">Importações</div>
+
+    <button onclick="abrirPagina('importarAcumuladores',this)">
+        Importar Acumuladores
+    </button>
+
+    <button onclick="abrirPagina('importarContas',this)">
+        Importar Contas Contábeis
+    </button>
+
+    <button onclick="abrirPagina('importarCFOP',this)">
+        Importar CFOP
+    </button>
+
+    <button onclick="abrirPagina('importarICMS',this)">
+        Importar / Consultar ICMS
+    </button>
+
+    <button onclick="abrirPagina('sped',this)">
+        SPED Fiscal
+    </button>
+
+    <div class="menu-title">Contabilidade</div>
+
+    <button onclick="abrirPagina('lancamentos',this)">
+        Gerar Lançamentos
+    </button>
+
+    <button onclick="abrirPagina('lancamentosGerados',this)">
+        Lançamentos Contábeis
+    </button>
+
+</div>
+
+
+<!-- ============================================================
+     ÁREA PRINCIPAL
+============================================================ -->
+
+<div class="main">
+
+    <div class="topbar">
+
+        <div class="topbar-title">
+            Conciliador Contábil x Fiscal
+        </div>
+
+        <div class="competencia-global">
+
+            <div class="field">
+
+                <label>Competência Global</label>
+
+                <input type="month"
+                       id="competenciaGlobal">
+
+            </div>
+
+            <button class="btn btn-primary btn-small"
+                    onclick="consultarTodasTelas()">
+
+                🔎 Consultar
+
+            </button>
+
+            <button class="btn btn-small"
+                    onclick="limparCompetencia()">
+
+                Todas
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="content">
+
+
+        <!-- ====================================================
+             DASHBOARD
+        ==================================================== -->
+
+        <section id="page-dashboard"
+                 class="page active">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>Dashboard</h2>
+
+                    <p>
+                        Visão geral do conciliador.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="stats">
+
+                <div class="stat">
+
+                    <div class="label">
+                        Acumuladores
+                    </div>
+
+                    <div class="value"
+                         id="dashAcumuladores">
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="label">
+                        Contas Contábeis
+                    </div>
+
+                    <div class="value"
+                         id="dashContas">
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="label">
+                        CFOPs
+                    </div>
+
+                    <div class="value"
+                         id="dashCFOPs">
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="label">
+                        Lançamentos
+                    </div>
+
+                    <div class="value"
+                         id="dashLancamentos">
+                        0
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>Informações</h3>
+
+                <div class="notice">
+
+                    Utilize o botão
+                    <strong>🔎 Consultar</strong>
+                    após alterar filtros ou competência.
+                    A consulta é feita diretamente na tela,
+                    sem recarregar a página.
+
+                </div>
+
+                <div id="dashboardResumo"></div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             PÁGINA PRINCIPAL DE CADASTROS
+        ==================================================== -->
+
+        <section id="page-cadastros"
+                 class="page">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>Cadastros</h2>
+
+                    <p>
+                        Selecione o cadastro que deseja consultar.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="cadastro-grid">
+
+                <div class="cadastro-card"
+                     onclick="abrirCadastroPorNome('acumuladores')">
+
+                    <h3>Acumuladores</h3>
+
+                    <p>
+                        Cadastro de acumuladores,
+                        contas e CFOPs.
+                    </p>
+
+                </div>
+
+
+                <div class="cadastro-card"
+                     onclick="abrirCadastroPorNome('contas')">
+
+                    <h3>Contas Contábeis</h3>
+
+                    <p>
+                        Contas reduzidas e analíticas.
+                    </p>
+
+                </div>
+
+
+                <div class="cadastro-card"
+                     onclick="abrirCadastroPorNome('empresas')">
+
+                    <h3>Matriz e Filiais</h3>
+
+                    <p>
+                        Empresas, matriz e filiais.
+                    </p>
+
+                </div>
+
+
+                <div class="cadastro-card"
+                     onclick="abrirCadastroPorNome('cfops')">
+
+                    <h3>CFOP</h3>
+
+                    <p>
+                        Cadastro de códigos fiscais.
+                    </p>
+
+                </div>
+
+
+                <div class="cadastro-card"
+                     onclick="abrirCadastroPorNome('naturezas')">
+
+                    <h3>Natureza Kacyumara</h3>
+
+                    <p>
+                        Naturezas e seus acumuladores vinculados.
+                    </p>
+
+                </div>
+
+
+                <div class="cadastro-card"
+                     onclick="abrirCadastroPorNome('historicos')">
+
+                    <h3>Históricos</h3>
+
+                    <p>
+                        Históricos contábeis.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             ACUMULADORES
+        ==================================================== -->
+
+        <section id="page-acumuladores"
+                 class="page">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>Acumuladores</h2>
+
+                    <p>
+                        Cadastro e consulta dos acumuladores.
+                    </p>
+
+                </div>
+
+                <button class="btn btn-primary"
+                        onclick="abrirModalAcumulador()">
+
+                    + Novo Acumulador
+
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="filters">
+
+                    <div class="field">
+
+                        <label>Competência</label>
+
+                        <input type="month"
+                               id="filtroAcumuladores">
+
+                    </div>
+
+
+                    <div class="field search">
+
+                        <label>Pesquisar</label>
+
+                        <input type="text"
+                               id="buscaAcumuladores"
+                               placeholder="Código ou descrição">
+
+                    </div>
+
+
+                    <div class="filter-actions">
+
+                        <button class="btn btn-primary"
+                                onclick="consultarTela('acumuladores')">
+
+                            🔎 Consultar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Código</th>
+                                <th>Descrição</th>
+                                <th>Tipo</th>
+                                <th>Débito</th>
+                                <th>Crédito</th>
+                                <th>CFOPs</th>
+                                <th>Competência</th>
+                                <th>Ações</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tabelaAcumuladores"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             CONTAS
+        ==================================================== -->
+
+        <section id="page-contas"
+                 class="page">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>Contas Contábeis</h2>
+
+                    <p>
+                        Cadastro de contas reduzidas e analíticas.
+                    </p>
+
+                </div>
+
+                <button class="btn btn-primary"
+                        onclick="abrirModalConta()">
+
+                    + Nova Conta
+
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="filters">
+
+                    <div class="field">
+
+                        <label>Competência</label>
+
+                        <input type="month"
+                               id="filtroContas">
+
+                    </div>
+
+
+                    <div class="field search">
+
+                        <label>Pesquisar</label>
+
+                        <input type="text"
+                               id="buscaContas"
+                               placeholder="Conta ou descrição">
+
+                    </div>
+
+
+                    <div class="filter-actions">
+
+                        <button class="btn btn-primary"
+                                onclick="consultarTela('contas')">
+
+                            🔎 Consultar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Reduzida</th>
+                                <th>Analítica</th>
+                                <th>Descrição</th>
+                                <th>Competência</th>
+                                <th>Ações</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tabelaContas"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             EMPRESAS
+        ==================================================== -->
+
+        <section id="page-empresas"
+                 class="page">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>Matriz e Filiais</h2>
+
+                    <p>
+                        Cadastro das empresas.
+                    </p>
+
+                </div>
+
+                <button class="btn btn-primary"
+                        onclick="abrirModalEmpresa()">
+
+                    + Nova Empresa
+
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="filters">
+
+                    <div class="field">
+
+                        <label>Competência</label>
+
+                        <input type="month"
+                               id="filtroEmpresas">
+
+                    </div>
+
+
+                    <div class="field search">
+
+                        <label>Pesquisar</label>
+
+                        <input type="text"
+                               id="buscaEmpresas"
+                               placeholder="CNPJ, apelido ou Domínio">
+
+                    </div>
+
+
+                    <div class="filter-actions">
+
+                        <button class="btn btn-primary"
+                                onclick="consultarTela('empresas')">
+
+                            🔎 Consultar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>CNPJ</th>
+                                <th>Apelido</th>
+                                <th>Nº Domínio</th>
+                                <th>Tipo</th>
+                                <th>Competência</th>
+                                <th>Ações</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tabelaEmpresas"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             CFOP
+        ==================================================== -->
+
+        <section id="page-cfops"
+                 class="page">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>CFOP</h2>
+
+                    <p>
+                        Cadastro dos códigos fiscais.
+                    </p>
+
+                </div>
+
+                <button class="btn btn-primary"
+                        onclick="abrirModalCFOP()">
+
+                    + Novo CFOP
+
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="filters">
+
+                    <div class="field">
+
+                        <label>Competência</label>
+
+                        <input type="month"
+                               id="filtroCFOP">
+
+                    </div>
+
+
+                    <div class="field search">
+
+                        <label>Pesquisar</label>
+
+                        <input type="text"
+                               id="buscaCFOP"
+                               placeholder="CFOP ou descrição">
+
+                    </div>
+
+
+                    <div class="filter-actions">
+
+                        <button class="btn btn-primary"
+                                onclick="consultarTela('cfops')">
+
+                            🔎 Consultar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>CFOP</th>
+                                <th>Descrição</th>
+                                <th>Competência</th>
+                                <th>Ações</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tabelaCFOP"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             NATUREZA KACYUMARA
+        ==================================================== -->
+
+        <section id="page-naturezas"
+                 class="page">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>Natureza Kacyumara</h2>
+
+                    <p>
+                        Cadastro das naturezas e vínculo com acumuladores.
+                    </p>
+
+                </div>
+
+                <button class="btn btn-primary"
+                        onclick="abrirModalNatureza()">
+
+                    + Nova Natureza
+
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="filters">
+
+                    <div class="field">
+
+                        <label>Competência</label>
+
+                        <input type="month"
+                               id="filtroNaturezas">
+
+                    </div>
+
+
+                    <div class="field search">
+
+                        <label>Pesquisar</label>
+
+                        <input type="text"
+                               id="buscaNaturezas"
+                               placeholder="Descrição ou acumulador">
+
+                    </div>
+
+
+                    <div class="filter-actions">
+
+                        <button class="btn btn-primary"
+                                onclick="consultarTela('naturezas')">
+
+                            🔎 Consultar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Descrição</th>
+                                <th>Acumuladores Vinculados</th>
+                                <th>Competência</th>
+                                <th>Ações</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tabelaNaturezas"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             HISTÓRICOS
+        ==================================================== -->
+
+        <section id="page-historicos"
+                 class="page">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>Históricos</h2>
+
+                    <p>
+                        Cadastro de históricos contábeis.
+                    </p>
+
+                </div>
+
+                <button class="btn btn-primary"
+                        onclick="abrirModalHistorico()">
+
+                    + Novo Histórico
+
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="filters">
+
+                    <div class="field">
+
+                        <label>Competência</label>
+
+                        <input type="month"
+                               id="filtroHistoricos">
+
+                    </div>
+
+
+                    <div class="field search">
+
+                        <label>Pesquisar</label>
+
+                        <input type="text"
+                               id="buscaHistoricos"
+                               placeholder="Número ou descrição">
+
+                    </div>
+
+
+                    <div class="filter-actions">
+
+                        <button class="btn btn-primary"
+                                onclick="consultarTela('historicos')">
+
+                            🔎 Consultar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Número</th>
+                                <th>Descrição</th>
+                                <th>Competência</th>
+                                <th>Ações</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tabelaHistoricos"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             IMPORTAR ACUMULADORES
+        ==================================================== -->
+
+        <section id="page-importarAcumuladores"
+                 class="page">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>Importar Acumuladores</h2>
+
+                    <p>
+                        Importação de planilha Excel.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="notice">
+
+                    A planilha deve possuir as colunas
+                    <strong>Código</strong> e
+                    <strong>Nome</strong>.
+
+                </div>
+
+
+                <div class="file-input">
+
+                    <div class="field">
+
+                        <label>
+                            Competência da importação
+                        </label>
+
+                        <input type="month"
+                               id="competenciaImportAcumuladores">
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Arquivo Excel
+                        </label>
+
+                        <input type="file"
+                               id="arquivoImportAcumuladores"
+                               accept=".xlsx,.xls,.csv">
+
+                    </div>
+
+
+                    <button class="btn btn-primary"
+                            onclick="importarAcumuladoresExcel()">
+
+                        Importar Planilha
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             IMPORTAR CONTAS
+        ==================================================== -->
+
+        <section id="page-importarContas"
+                 class="page">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>Importar Contas Contábeis</h2>
+
+                    <p>
+                        Importação de contas através de Excel.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="notice">
+
+                    A planilha deve possuir as informações de
+                    conta reduzida, conta analítica e descrição.
+
+                </div>
+
+
+                <div class="file-input">
+
+                    <div class="field">
+
+                        <label>
+                            Competência da importação
+                        </label>
+
+                        <input type="month"
+                               id="competenciaImportContas">
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Arquivo Excel
+                        </label>
+
+                        <input type="file"
+                               id="arquivoImportContas"
+                               accept=".xlsx,.xls,.csv">
+
+                    </div>
+
+
+                    <button class="btn btn-primary"
+                            onclick="importarContasExcel()">
+
+                        Importar Planilha
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             IMPORTAR CFOP
+        ==================================================== -->
+
+        <section id="page-importarCFOP"
+                 class="page">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>Importar CFOP</h2>
+
+                    <p>
+                        Importação de cadastro de CFOP.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="file-input">
+
+                    <div class="field">
+
+                        <label>
+                            Competência da importação
+                        </label>
+
+                        <input type="month"
+                               id="competenciaImportCFOP">
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Arquivo Excel
+                        </label>
+
+                        <input type="file"
+                               id="arquivoImportCFOP"
+                               accept=".xlsx,.xls,.csv">
+
+                    </div>
+
+
+                    <button class="btn btn-primary"
+                            onclick="importarCFOPExcel()">
+
+                        Importar CFOP
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             ICMS
+        ==================================================== -->
+
+        <section id="page-importarICMS"
+                 class="page">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>Importar / Consultar ICMS</h2>
+
+                    <p>
+                        Valores totalizados do SPED por CFOP.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="file-input">
+
+                    <div class="field">
+
+                        <label>
+                            Arquivo SPED Fiscal
+                        </label>
+
+                        <input type="file"
+                               id="arquivoICMS"
+                               accept=".txt">
+
+                    </div>
+
+
+                    <button class="btn btn-primary"
+                            onclick="importarSPEDArquivo('arquivoICMS')">
+
+                        Importar SPED
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="filters">
+
+                    <div class="field">
+
+                        <label>
+                            Competência
+                        </label>
+
+                        <input type="month"
+                               id="filtroICMS">
+
+                    </div>
+
+
+                    <div class="field search">
+
+                        <label>
+                            CFOP
+                        </label>
+
+                        <input type="text"
+                               id="buscaICMSCFOP"
+                               placeholder="Filtrar CFOP">
+
+                    </div>
+
+
+                    <div class="filter-actions">
+
+                        <button class="btn btn-primary"
+                                onclick="consultarTela('importarICMS')">
+
+                            🔎 Consultar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Competência</th>
+                                <th>CFOP</th>
+                                <th>Valor Operação</th>
+                                <th>Base ICMS</th>
+                                <th>Valor ICMS</th>
+                                <th>Isentas</th>
+                                <th>Outras</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tabelaICMS"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             SPED
+        ==================================================== -->
+
+        <section id="page-sped"
+                 class="page">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>SPED Fiscal</h2>
+
+                    <p>
+                        Arquivos importados e registros C190.
+                    </p>
+
+                </div>
+
+
+                <div class="buttons">
+
+                    <input type="file"
+                           id="arquivoSPED"
+                           accept=".txt"
+                           style="display:none"
+                           onchange="importarSPEDArquivo('arquivoSPED')">
+
+
+                    <button class="btn btn-primary"
+                            onclick="document.getElementById('arquivoSPED').click()">
+
+                        + Importar SPED
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="filters">
+
+                    <div class="field">
+
+                        <label>
+                            Competência
+                        </label>
+
+                        <input type="month"
+                               id="filtroSPED">
+
+                    </div>
+
+
+                    <div class="field search">
+
+                        <label>
+                            Pesquisar arquivo
+                        </label>
+
+                        <input type="text"
+                               id="buscaSPED"
+                               placeholder="Nome do arquivo">
+
+                    </div>
+
+
+                    <div class="filter-actions">
+
+                        <button class="btn btn-primary"
+                                onclick="consultarTela('sped')">
+
+                            🔎 Consultar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Arquivo</th>
+                                <th>Competência</th>
+                                <th>Importado em</th>
+                                <th>C190</th>
+                                <th>Ações</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tabelaSPED"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             GERAR LANÇAMENTOS
+        ==================================================== -->
+
+        <section id="page-lancamentos"
+                 class="page">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>Gerar Lançamentos Contábeis</h2>
+
+                    <p>
+                        Criação dos lançamentos contábeis.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="grid">
+
+                    <div class="field">
+
+                        <label>
+                            Data
+                        </label>
+
+                        <input type="date"
+                               id="lancData">
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Tipo
+                        </label>
+
+                        <select id="lancTipo">
+
+                            <option value="ENTRADA">
+                                Entrada
+                            </option>
+
+                            <option value="SAIDA">
+                                Saída
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Valor
+                        </label>
+
+                        <input type="number"
+                               step="0.01"
+                               id="lancValor">
+
+                    </div>
+
+                </div>
+
+
+                <div class="grid">
+
+                    <div class="field">
+
+                        <label>
+                            Acumulador
+                        </label>
+
+                        <select id="lancAcumulador"></select>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Débito
+                        </label>
+
+                        <select id="lancDebito"></select>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Crédito
+                        </label>
+
+                        <select id="lancCredito"></select>
+
+                    </div>
+
+                </div>
+
+
+                <div class="grid-2">
+
+                    <div class="field">
+
+                        <label>
+                            Histórico
+                        </label>
+
+                        <select id="lancHistorico"></select>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Complemento
+                        </label>
+
+                        <input type="text"
+                               id="lancComplemento">
+
+                    </div>
+
+                </div>
+
+
+                <div class="buttons">
+
+                    <button class="btn btn-primary"
+                            onclick="gerarLancamento()">
+
+                        Gerar Lançamento
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             LANÇAMENTOS GERADOS
+        ==================================================== -->
+
+        <section id="page-lancamentosGerados"
+                 class="page">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h2>Lançamentos Contábeis</h2>
+
+                    <p>
+                        Consulta de todos os lançamentos gerados.
+                    </p>
+
+                </div>
+
+
+                <div class="buttons">
+
+                    <button class="btn btn-success"
+                            onclick="exportarLancamentosExcel()">
+
+                        Exportar Excel
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="filters">
+
+                    <div class="field">
+
+                        <label>
+                            Competência
+                        </label>
+
+                        <input type="month"
+                               id="filtroLancamentos">
+
+                    </div>
+
+
+                    <div class="field search">
+
+                        <label>
+                            Pesquisar
+                        </label>
+
+                        <input type="text"
+                               id="buscaLancamentos"
+                               placeholder="Histórico, conta ou acumulador">
+
+                    </div>
+
+
+                    <div class="filter-actions">
+
+                        <button class="btn btn-primary"
+                                onclick="consultarTela('lancamentosGerados')">
+
+                            🔎 Consultar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Data</th>
+                                <th>Competência</th>
+                                <th>Tipo</th>
+                                <th>Acumulador</th>
+                                <th>Histórico</th>
+                                <th>Débito</th>
+                                <th>Crédito</th>
+                                <th>Valor</th>
+                                <th>Complemento</th>
+                                <th>Ações</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tabelaLancamentos"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     MODAL ACUMULADOR
+============================================================ -->
+
+<div class="modal"
+     id="modalAcumulador">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h3>
+                Acumulador
+            </h3>
+
+            <button class="close"
+                    onclick="fecharModal('modalAcumulador')">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <input type="hidden"
+               id="acumuladorId">
+
+
+        <div class="grid">
+
+            <div class="field">
+
+                <label>
+                    Código Domínio
+                </label>
+
+                <input type="text"
+                       id="acumuladorCodigo">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Tipo
+                </label>
+
+                <select id="acumuladorTipo">
+
+                    <option value="ENTRADA">
+                        Entrada
+                    </option>
+
+                    <option value="SAIDA">
+                        Saída
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Competência
+                </label>
+
+                <input type="month"
+                       id="acumuladorCompetencia">
+
+            </div>
+
+        </div>
+
+
+        <div class="field">
+
+            <label>
+                Descrição
+            </label>
+
+            <input type="text"
+                   id="acumuladorDescricao">
+
+        </div>
+
+
+        <div class="grid-2">
+
+            <div class="field">
+
+                <label>
+                    Conta Débito
+                </label>
+
+                <select id="acumuladorDebito"></select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Conta Crédito
+                </label>
+
+                <select id="acumuladorCredito"></select>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                CFOPs
+            </h3>
+
+
+            <div class="grid-2">
+
+                <div class="field">
+
+                    <label>
+                        CFOP
+                    </label>
+
+                    <select id="acumuladorCFOP"></select>
+
+                </div>
+
+
+                <div class="buttons">
+
+                    <button class="btn btn-primary"
+                            onclick="adicionarCFOPAcumulador()">
+
+                        + Adicionar CFOP
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div id="listaCFOPAcumulador"></div>
+
+        </div>
+
+
+        <div class="buttons">
+
+            <button class="btn btn-primary"
+                    onclick="salvarAcumulador()">
+
+                Salvar
+
+            </button>
+
+
+            <button class="btn"
+                    onclick="fecharModal('modalAcumulador')">
+
+                Cancelar
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     MODAL CONTA
+============================================================ -->
+
+<div class="modal"
+     id="modalConta">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h3>
+                Conta Contábil
+            </h3>
+
+            <button class="close"
+                    onclick="fecharModal('modalConta')">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <input type="hidden"
+               id="contaId">
+
+
+        <div class="grid">
+
+            <div class="field">
+
+                <label>
+                    Conta Reduzida
+                </label>
+
+                <input type="text"
+                       id="contaReduzida">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Conta Analítica
+                </label>
+
+                <input type="text"
+                       id="contaAnalitica">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Competência
+                </label>
+
+                <input type="month"
+                       id="contaCompetencia">
+
+            </div>
+
+        </div>
+
+
+        <div class="field">
+
+            <label>
+                Descrição
+            </label>
+
+            <input type="text"
+                   id="contaDescricao">
+
+        </div>
+
+
+        <div class="buttons">
+
+            <button class="btn btn-primary"
+                    onclick="salvarConta()">
+
+                Salvar
+
+            </button>
+
+
+            <button class="btn"
+                    onclick="fecharModal('modalConta')">
+
+                Cancelar
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     MODAL EMPRESA
+============================================================ -->
+
+<div class="modal"
+     id="modalEmpresa">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h3>
+                Matriz / Filial
+            </h3>
+
+            <button class="close"
+                    onclick="fecharModal('modalEmpresa')">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <input type="hidden"
+               id="empresaId">
+
+
+        <div class="grid">
+
+            <div class="field">
+
+                <label>
+                    CNPJ
+                </label>
+
+                <input type="text"
+                       id="empresaCNPJ">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Apelido
+                </label>
+
+                <input type="text"
+                       id="empresaApelido">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Número na Domínio
+                </label>
+
+                <input type="text"
+                       id="empresaDominio">
+
+            </div>
+
+        </div>
+
+
+        <div class="grid">
+
+            <div class="field">
+
+                <label>
+                    Tipo
+                </label>
+
+                <select id="empresaTipo">
+
+                    <option value="MATRIZ">
+                        Matriz
+                    </option>
+
+                    <option value="FILIAL">
+                        Filial
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Competência
+                </label>
+
+                <input type="month"
+                       id="empresaCompetencia">
+
+            </div>
+
+        </div>
+
+
+        <div class="buttons">
+
+            <button class="btn btn-primary"
+                    onclick="salvarEmpresa()">
+
+                Salvar
+
+            </button>
+
+
+            <button class="btn"
+                    onclick="fecharModal('modalEmpresa')">
+
+                Cancelar
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     MODAL CFOP
+============================================================ -->
+
+<div class="modal"
+     id="modalCFOP">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h3>
+                CFOP
+            </h3>
+
+            <button class="close"
+                    onclick="fecharModal('modalCFOP')">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <input type="hidden"
+               id="cfopId">
+
+
+        <div class="grid">
+
+            <div class="field">
+
+                <label>
+                    CFOP
+                </label>
+
+                <input type="text"
+                       id="cfopCodigo">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Competência
+                </label>
+
+                <input type="month"
+                       id="cfopCompetencia">
+
+            </div>
+
+        </div>
+
+
+        <div class="field">
+
+            <label>
+                Descrição
+            </label>
+
+            <input type="text"
+                   id="cfopDescricao">
+
+        </div>
+
+
+        <div class="buttons">
+
+            <button class="btn btn-primary"
+                    onclick="salvarCFOP()">
+
+                Salvar
+
+            </button>
+
+
+            <button class="btn"
+                    onclick="fecharModal('modalCFOP')">
+
+                Cancelar
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     MODAL NATUREZA KACYUMARA
+============================================================ -->
+
+<div class="modal"
+     id="modalNatureza">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h3>
+                Natureza Kacyumara
+            </h3>
+
+            <button class="close"
+                    onclick="fecharModal('modalNatureza')">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <input type="hidden"
+               id="naturezaId">
+
+
+        <div class="field">
+
+            <label>
+                Descrição da Natureza
+            </label>
+
+            <input type="text"
+                   id="naturezaDescricao">
+
+        </div>
+
+
+        <div class="field">
+
+            <label>
+                Competência
+            </label>
+
+            <input type="month"
+                   id="naturezaCompetencia">
+
+        </div>
+
+
+        <hr>
+
+
+        <div class="field">
+
+            <label>
+                Acumuladores Vinculados
+            </label>
+
+            <div class="notice">
+
+                Selecione os acumuladores que poderão ser utilizados
+                nesta Natureza Kacyumara.
+
+            </div>
+
+
+            <div class="vinculos"
+                 id="listaAcumuladoresNatureza">
+
+            </div>
+
+        </div>
+
+
+        <div class="buttons">
+
+            <button class="btn btn-primary"
+                    onclick="salvarNatureza()">
+
+                Salvar
+
+            </button>
+
+
+            <button class="btn"
+                    onclick="fecharModal('modalNatureza')">
+
+                Cancelar
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     MODAL HISTÓRICO
+============================================================ -->
+
+<div class="modal"
+     id="modalHistorico">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h3>
+                Histórico
+            </h3>
+
+            <button class="close"
+                    onclick="fecharModal('modalHistorico')">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <input type="hidden"
+               id="historicoId">
+
+
+        <div class="grid">
+
+            <div class="field">
+
+                <label>
+                    Número
+                </label>
+
+                <input type="text"
+                       id="historicoNumero">
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Competência
+                </label>
+
+                <input type="month"
+                       id="historicoCompetencia">
+
+            </div>
+
+        </div>
+
+
+        <div class="field">
+
+            <label>
+                Descrição
+            </label>
+
+            <input type="text"
+                   id="historicoDescricao">
+
+        </div>
+
+
+        <div class="buttons">
+
+            <button class="btn btn-primary"
+                    onclick="salvarHistorico()">
+
+                Salvar
+
+            </button>
+
+
+            <button class="btn"
+                    onclick="fecharModal('modalHistorico')">
+
+                Cancelar
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* ============================================================
+   BANCO
+============================================================ */
+
+const DB_KEY =
+    "conciliador_contabil_fiscal_v3";
+
+let db =
+    carregarDB();
+
+let cfopsAcumuladorTemp = [];
+
+
+/*
+ * Guarda os acumuladores selecionados
+ * na Natureza Kacyumara enquanto o modal está aberto.
+ */
+let acumuladoresNaturezaTemp = [];
+
+
+/* ============================================================
+   BANCO DE DADOS
+============================================================ */
+
+function bancoVazio(){
+
+    return {
+
+        acumuladores:[],
+        contas:[],
+        empresas:[],
+        cfops:[],
+        naturezas:[],
+        historicos:[],
+        lancamentos:[],
+        sped:[],
+        spedRegistros:[]
+
+    };
+
+}
+
+
+function carregarDB(){
+
+    try{
+
+        const salvo =
+            localStorage.getItem(DB_KEY);
+
+        if(!salvo){
+            return bancoVazio();
+        }
+
+        const dados =
+            JSON.parse(salvo);
+
+        const base =
+            bancoVazio();
+
+        const resultado = {
+            ...base,
+            ...dados
+        };
+
+
+        /*
+         * Compatibilidade com Naturezas antigas.
+         * Se a natureza já existia antes desta alteração,
+         * ela passa a ter automaticamente acumuladores:[]
+         */
+
+        resultado.naturezas =
+            resultado.naturezas.map(n => ({
+
+                ...n,
+
+                acumuladores:
+                    Array.isArray(n.acumuladores)
+                        ? n.acumuladores
+                        : []
+
+            }));
+
+
+        return resultado;
+
+    }catch(e){
+
+        console.error(e);
+
+        return bancoVazio();
+
+    }
+
+}
+
+
+function salvarDB(){
+
+    localStorage.setItem(
+        DB_KEY,
+        JSON.stringify(db)
+    );
+
+    atualizarDashboard();
+
+}
+
+
+/* ============================================================
+   UTILITÁRIOS
+============================================================ */
+
+function uid(){
+
+    return Date.now().toString(36) +
+           Math.random().toString(36).substring(2,9);
+
+}
+
+
+function escapeHtml(valor){
+
+    if(valor === null ||
+       valor === undefined){
+
+        return "";
+
+    }
+
+    return String(valor)
+
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+function normalizarTexto(valor){
+
+    return String(valor || "")
+
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g,"")
+        .toLowerCase()
+        .trim();
+
+}
+
+
+function normalizarCabecalho(valor){
+
+    return normalizarTexto(valor)
+        .replace(/[^a-z0-9]/g,"");
+
+}
+
+
+function valorNumero(valor){
+
+    if(valor === null ||
+       valor === undefined ||
+       valor === ""){
+
+        return 0;
+
+    }
+
+    if(typeof valor === "number"){
+        return valor;
+    }
+
+    let s =
+        String(valor).trim();
+
+    s =
+        s.replace(/\s/g,"");
+
+    if(s.includes(",") &&
+       s.includes(".")){
+
+        s =
+            s.replace(/\./g,"")
+             .replace(",",".");
+        
+    }else if(s.includes(",")){
+
+        s =
+            s.replace(",",".");
+        
+    }
+
+    s =
+        s.replace(/[^\d.-]/g,"");
+
+    const n =
+        Number(s);
+
+    return isNaN(n) ? 0 : n;
+
+}
+
+
+function moeda(valor){
+
+    return Number(valor || 0)
+        .toLocaleString(
+            "pt-BR",
+            {
+                style:"currency",
+                currency:"BRL"
+            }
+        );
+
+}
+
+
+function competenciaDaData(data){
+
+    if(!data){
+        return "";
+    }
+
+    const s =
+        String(data);
+
+    if(/^\d{4}-\d{2}/.test(s)){
+        return s.substring(0,7);
+    }
+
+    return "";
+
+}
+
+
+function obterCompetenciaGlobal(){
+
+    return document
+        .getElementById("competenciaGlobal")
+        ?.value || "";
+
+}
+
+
+function filtrarCompetencia(
+    item,
+    campo="competencia"
+){
+
+    const comp =
+        obterCompetenciaGlobal();
+
+    if(!comp){
+        return true;
+    }
+
+    return item[campo] === comp;
+
+}
+
+
+function competenciaLocal(id){
+
+    return document
+        .getElementById(id)
+        ?.value || "";
+
+}
+
+
+function matchesBusca(textos,busca){
+
+    if(!busca){
+        return true;
+    }
+
+    const b =
+        normalizarTexto(busca);
+
+    return textos.some(t =>
+        normalizarTexto(t)
+            .includes(b)
+    );
+
+}
+
+
+/* ============================================================
+   MENU DE CADASTROS
+============================================================ */
+
+function alternarMenuCadastros(){
+
+    const menu =
+        document.getElementById(
+            "submenuCadastros"
+        );
+
+    const seta =
+        document.getElementById(
+            "setaCadastros"
+        );
+
+    if(menu.classList.contains("open")){
+
+        menu.classList.remove("open");
+
+        seta.textContent = "▶";
+
+    }else{
+
+        menu.classList.add("open");
+
+        seta.textContent = "▼";
+
+    }
+
+}
+
+
+function abrirCadastro(nome,botao){
+
+    /*
+     * O submenu continua aberto.
+     */
+
+    document.querySelectorAll(".page")
+        .forEach(p =>
+            p.classList.remove("active")
+        );
+
+    const pagina =
+        document.getElementById(
+            "page-" + nome
+        );
+
+    if(pagina){
+
+        pagina.classList.add("active");
+
+    }
+
+
+    document.querySelectorAll(
+        ".menu-cadastro button"
+    ).forEach(b =>
+        b.classList.remove("active")
+    );
+
+
+    if(botao){
+
+        botao.classList.add("active");
+
+    }
+
+
+    /*
+     * Consulta automaticamente apenas quando
+     * entramos na tela, sem recarregar a página.
+     */
+
+    consultarTela(nome);
+
+}
+
+
+function abrirCadastroPorNome(nome){
+
+    const menu =
+        document.getElementById(
+            "submenuCadastros"
+        );
+
+    if(!menu.classList.contains("open")){
+
+        menu.classList.add("open");
+
+        document.getElementById(
+            "setaCadastros"
+        ).textContent = "▼";
+
+    }
+
+
+    const botoes =
+        menu.querySelectorAll("button");
+
+    botoes.forEach(botao => {
+
+        if(
+            normalizarTexto(botao.textContent)
+            .includes(
+                normalizarTexto(
+                    nome === "acumuladores"
+                        ? "Acumuladores"
+                        : nome === "contas"
+                            ? "Contas Contábeis"
+                            : nome === "empresas"
+                                ? "Matriz e Filiais"
+                                : nome === "cfops"
+                                    ? "CFOP"
+                                    : nome === "naturezas"
+                                        ? "Natureza Kacyumara"
+                                        : "Históricos"
+                )
+            )
+        ){
+
+            abrirCadastro(nome,botao);
+
+        }
+
+    });
+
+}
+
+
+/* ============================================================
+   NAVEGAÇÃO
+============================================================ */
+
+function abrirPagina(nome,botao){
+
+    document.querySelectorAll(".page")
+        .forEach(p =>
+            p.classList.remove("active")
+        );
+
+
+    const pagina =
+        document.getElementById(
+            "page-" + nome
+        );
+
+
+    if(pagina){
+
+        pagina.classList.add("active");
+
+    }
+
+
+    document.querySelectorAll(
+        ".sidebar > button"
+    ).forEach(b =>
+        b.classList.remove("active")
+    );
+
+
+    if(botao){
+
+        botao.classList.add("active");
+
+    }
+
+
+    if(nome === "dashboard"){
+
+        atualizarDashboard();
+
+    }
+
+
+    if(nome === "lancamentos"){
+
+        carregarSelectsLancamento();
+
+    }
+
+
+    if(nome === "cadastros"){
+
+        alternarMenuCadastros();
+
+    }
+
+}
+
+
+function consultarTela(nome){
+
+    switch(nome){
+
+        case "acumuladores":
+            renderAcumuladores();
+            break;
+
+        case "contas":
+            renderContas();
+            break;
+
+        case "empresas":
+            renderEmpresas();
+            break;
+
+        case "cfops":
+            renderCFOPs();
+            break;
+
+        case "naturezas":
+            renderNaturezas();
+            break;
+
+        case "historicos":
+            renderHistoricos();
+            break;
+
+        case "importarICMS":
+            renderICMS();
+            break;
+
+        case "sped":
+            renderSPED();
+            break;
+
+        case "lancamentosGerados":
+            renderLancamentos();
+            break;
+
+    }
+
+}
+
+
+function consultarTodasTelas(){
+
+    renderAcumuladores();
+
+    renderContas();
+
+    renderEmpresas();
+
+    renderCFOPs();
+
+    renderNaturezas();
+
+    renderHistoricos();
+
+    renderICMS();
+
+    renderSPED();
+
+    renderLancamentos();
+
+    atualizarDashboard();
+
+}
+
+
+function limparCompetencia(){
+
+    document.getElementById(
+        "competenciaGlobal"
+    ).value = "";
+
+    consultarTodasTelas();
+
+}
+
+
+/* ============================================================
+   DASHBOARD
+============================================================ */
+
+function atualizarDashboard(){
+
+    const a =
+        document.getElementById(
+            "dashAcumuladores"
+        );
+
+    const c =
+        document.getElementById(
+            "dashContas"
+        );
+
+    const f =
+        document.getElementById(
+            "dashCFOPs"
+        );
+
+    const l =
+        document.getElementById(
+            "dashLancamentos"
+        );
+
+
+    if(a){
+        a.textContent =
+            db.acumuladores.length;
+    }
+
+
+    if(c){
+        c.textContent =
+            db.contas.length;
+    }
+
+
+    if(f){
+        f.textContent =
+            db.cfops.length;
+    }
+
+
+    if(l){
+        l.textContent =
+            db.lancamentos.length;
+    }
+
+
+    const resumo =
+        document.getElementById(
+            "dashboardResumo"
+        );
+
+
+    if(!resumo){
+        return;
+    }
+
+
+    resumo.innerHTML = `
+
+        <div class="grid">
+
+            <div>
+                <strong>Empresas:</strong>
+                ${db.empresas.length}
+            </div>
+
+            <div>
+                <strong>Naturezas:</strong>
+                ${db.naturezas.length}
+            </div>
+
+            <div>
+                <strong>Históricos:</strong>
+                ${db.historicos.length}
+            </div>
+
+            <div>
+                <strong>Arquivos SPED:</strong>
+                ${db.sped.length}
+            </div>
+
+            <div>
+                <strong>Registros C190:</strong>
+                ${db.spedRegistros.length}
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* ============================================================
+   MODAIS
+============================================================ */
+
+function abrirModal(id){
+
+    document
+        .getElementById(id)
+        .classList.add("show");
+
+}
+
+
+function fecharModal(id){
+
+    document
+        .getElementById(id)
+        .classList.remove("show");
+
+}
+
+
+/* ============================================================
+   MODAL ACUMULADOR
+============================================================ */
+
+function abrirModalAcumulador(id=null){
+
+    document.getElementById(
+        "acumuladorId"
+    ).value = "";
+
+    document.getElementById(
+        "acumuladorCodigo"
+    ).value = "";
+
+    document.getElementById(
+        "acumuladorDescricao"
+    ).value = "";
+
+    document.getElementById(
+        "acumuladorTipo"
+    ).value = "ENTRADA";
+
+    document.getElementById(
+        "acumuladorCompetencia"
+    ).value = "";
+
+    document.getElementById(
+        "acumuladorDebito"
+    ).value = "";
+
+    document.getElementById(
+        "acumuladorCredito"
+    ).value = "";
+
+
+    cfopsAcumuladorTemp = [];
+
+
+    carregarSelectContasAcumulador();
+
+    carregarSelectCFOPAcumulador();
+
+    renderCFOPsAcumuladorTemp();
+
+
+    if(id){
+
+        const item =
+            db.acumuladores.find(
+                x => x.id === id
+            );
+
+
+        if(!item){
+            return;
+        }
+
+
+        document.getElementById(
+            "acumuladorId"
+        ).value = item.id;
+
+
+        document.getElementById(
+            "acumuladorCodigo"
+        ).value = item.codigo;
+
+
+        document.getElementById(
+            "acumuladorDescricao"
+        ).value = item.descricao;
+
+
+        document.getElementById(
+            "acumuladorTipo"
+        ).value = item.tipo;
+
+
+        document.getElementById(
+            "acumuladorCompetencia"
+        ).value =
+            item.competencia || "";
+
+
+        document.getElementById(
+            "acumuladorDebito"
+        ).value =
+            item.debito || "";
+
+
+        document.getElementById(
+            "acumuladorCredito"
+        ).value =
+            item.credito || "";
+
+
+        cfopsAcumuladorTemp =
+            [...(item.cfops || [])];
+
+
+        renderCFOPsAcumuladorTemp();
+
+    }
+
+
+    abrirModal(
+        "modalAcumulador"
+    );
+
+}
+
+
+function carregarSelectContasAcumulador(){
+
+    const debito =
+        document.getElementById(
+            "acumuladorDebito"
+        );
+
+    const credito =
+        document.getElementById(
+            "acumuladorCredito"
+        );
+
+
+    if(!debito || !credito){
+        return;
+    }
+
+
+    const options =
+        db.contas.map(c => `
+
+            <option value="${escapeHtml(c.id)}">
+
+                ${escapeHtml(c.reduzida)}
+                -
+                ${escapeHtml(c.descricao)}
+
+            </option>
+
+        `).join("");
+
+
+    debito.innerHTML =
+        `<option value="">
+            Selecione
+        </option>` +
+        options;
+
+
+    credito.innerHTML =
+        `<option value="">
+            Selecione
+        </option>` +
+        options;
+
+}
+
+
+function carregarSelectCFOPAcumulador(){
+
+    const select =
+        document.getElementById(
+            "acumuladorCFOP"
+        );
+
+
+    if(!select){
+        return;
+    }
+
+
+    select.innerHTML =
+        `<option value="">
+            Selecione
+        </option>` +
+
+        db.cfops.map(c => `
+
+            <option value="${escapeHtml(c.codigo)}">
+
+                ${escapeHtml(c.codigo)}
+                -
+                ${escapeHtml(c.descricao)}
+
+            </option>
+
+        `).join("");
+
+}
+
+
+function adicionarCFOPAcumulador(){
+
+    const select =
+        document.getElementById(
+            "acumuladorCFOP"
+        );
+
+
+    const valor =
+        select.value;
+
+
+    if(!valor){
+
+        alert(
+            "Selecione um CFOP."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        cfopsAcumuladorTemp.includes(valor)
+    ){
+
+        alert(
+            "Este CFOP já foi adicionado."
+        );
+
+        return;
+
+    }
+
+
+    cfopsAcumuladorTemp.push(
+        valor
+    );
+
+
+    renderCFOPsAcumuladorTemp();
+
+}
+
+
+function renderCFOPsAcumuladorTemp(){
+
+    const div =
+        document.getElementById(
+            "listaCFOPAcumulador"
+        );
+
+
+    if(!div){
+        return;
+    }
+
+
+    if(
+        !cfopsAcumuladorTemp.length
+    ){
+
+        div.innerHTML =
+            `<div class="empty">
+                Nenhum CFOP adicionado.
+             </div>`;
+
+        carregarSelectCFOPAcumulador();
+
+        return;
+
+    }
+
+
+    div.innerHTML =
+        cfopsAcumuladorTemp.map(
+            cfop => {
+
+                const item =
+                    db.cfops.find(
+                        c => c.codigo === cfop
+                    );
+
+
+                return `
+
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                        border-bottom:1px solid #eee;
+                        padding:7px 0;
+                    ">
+
+                        <span>
+
+                            <strong>
+                                ${escapeHtml(cfop)}
+                            </strong>
+
+                            ${
+                                item
+                                ? "- " +
+                                  escapeHtml(
+                                      item.descricao
+                                  )
+                                : ""
+                            }
+
+                        </span>
+
+
+                        <button
+                            class="btn btn-small btn-danger"
+                            onclick="removerCFOPAcumulador('${escapeHtml(cfop)}')">
+
+                            Remover
+
+                        </button>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+
+    carregarSelectCFOPAcumulador();
+
+}
+
+
+function removerCFOPAcumulador(cfop){
+
+    cfopsAcumuladorTemp =
+        cfopsAcumuladorTemp.filter(
+            x => x !== cfop
+        );
+
+    renderCFOPsAcumuladorTemp();
+
+}
+
+
+function salvarAcumulador(){
+
+    const id =
+        document.getElementById(
+            "acumuladorId"
+        ).value;
+
+
+    const codigo =
+        document.getElementById(
+            "acumuladorCodigo"
+        ).value.trim();
+
+
+    const descricao =
+        document.getElementById(
+            "acumuladorDescricao"
+        ).value.trim();
+
+
+    const tipo =
+        document.getElementById(
+            "acumuladorTipo"
+        ).value;
+
+
+    const debito =
+        document.getElementById(
+            "acumuladorDebito"
+        ).value;
+
+
+    const credito =
+        document.getElementById(
+            "acumuladorCredito"
+        ).value;
+
+
+    const competencia =
+        document.getElementById(
+            "acumuladorCompetencia"
+        ).value;
+
+
+    if(!codigo || !descricao){
+
+        alert(
+            "Informe o código e a descrição."
+        );
+
+        return;
+
+    }
+
+
+    const obj = {
+
+        id:
+            id || uid(),
+
+        codigo,
+
+        descricao,
+
+        tipo,
+
+        debito,
+
+        credito,
+
+        cfops:
+            [...cfopsAcumuladorTemp],
+
+        competencia
+
+    };
+
+
+    if(id){
+
+        const index =
+            db.acumuladores.findIndex(
+                x => x.id === id
+            );
+
+
+        if(index >= 0){
+
+            db.acumuladores[index] =
+                obj;
+
+        }
+
+    }else{
+
+        db.acumuladores.push(
+            obj
+        );
+
+    }
+
+
+    salvarDB();
+
+
+    fecharModal(
+        "modalAcumulador"
+    );
+
+
+    renderAcumuladores();
+
+
+    /*
+     * Atualiza as opções da Natureza.
+     */
+
+    renderNaturezas();
+
+}
+
+
+function renderAcumuladores(){
+
+    const tbody =
+        document.getElementById(
+            "tabelaAcumuladores"
+        );
+
+
+    if(!tbody){
+        return;
+    }
+
+
+    const competencia =
+        competenciaLocal(
+            "filtroAcumuladores"
+        );
+
+
+    const busca =
+        document.getElementById(
+            "buscaAcumuladores"
+        )?.value || "";
+
+
+    let dados =
+        db.acumuladores
+            .filter(filtrarCompetencia);
+
+
+    if(competencia){
+
+        dados =
+            dados.filter(
+                x =>
+                    x.competencia ===
+                    competencia
+            );
+
+    }
+
+
+    dados =
+        dados.filter(x =>
+            matchesBusca(
+                [
+                    x.codigo,
+                    x.descricao,
+                    x.tipo,
+                    ...(x.cfops || [])
+                ],
+                busca
+            )
+        );
+
+
+    if(!dados.length){
+
+        tbody.innerHTML =
+            `<tr>
+                <td colspan="8"
+                    class="empty">
+
+                    Nenhum acumulador encontrado.
+
+                </td>
+             </tr>`;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        dados.map(x => {
+
+            const debito =
+                db.contas.find(
+                    c => c.id === x.debito
+                );
+
+
+            const credito =
+                db.contas.find(
+                    c => c.id === x.credito
+                );
+
+
+            return `
+
+                <tr>
+
+                    <td>
+                        ${escapeHtml(x.codigo)}
+                    </td>
+
+
+                    <td>
+                        ${escapeHtml(x.descricao)}
+                    </td>
+
+
+                    <td>
+
+                        <span class="badge blue">
+                            ${escapeHtml(x.tipo)}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        ${
+                            debito
+                            ? escapeHtml(
+                                debito.reduzida +
+                                " - " +
+                                debito.descricao
+                            )
+                            : ""
+                        }
+
+                    </td>
+
+
+                    <td>
+
+                        ${
+                            credito
+                            ? escapeHtml(
+                                credito.reduzida +
+                                " - " +
+                                credito.descricao
+                            )
+                            : ""
+                        }
+
+                    </td>
+
+
+                    <td>
+                        ${escapeHtml(
+                            (x.cfops || []).join(", ")
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${escapeHtml(
+                            x.competencia || ""
+                        )}
+                    </td>
+
+
+                    <td>
+
+                        <div class="buttons">
+
+                            <button
+                                class="btn btn-small"
+                                onclick="abrirModalAcumulador('${x.id}')">
+
+                                Editar
+
+                            </button>
+
+
+                            <button
+                                class="btn btn-small btn-danger"
+                                onclick="excluirAcumulador('${x.id}')">
+
+                                Excluir
+
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join("");
+
+}
+
+
+function excluirAcumulador(id){
+
+    if(
+        !confirm(
+            "Deseja excluir este acumulador?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    db.acumuladores =
+        db.acumuladores.filter(
+            x => x.id !== id
+        );
+
+
+    /*
+     * Remove o acumulador de todas as
+     * Naturezas onde ele estava vinculado.
+     */
+
+    db.naturezas =
+        db.naturezas.map(n => ({
+
+            ...n,
+
+            acumuladores:
+                (n.acumuladores || [])
+                    .filter(
+                        idAc =>
+                            idAc !== id
+                    )
+
+        }));
+
+
+    salvarDB();
+
+    renderAcumuladores();
+
+    renderNaturezas();
+
+}
+
+
+/* ============================================================
+   CONTAS
+============================================================ */
+
+function salvarConta(){
+
+    const id =
+        document.getElementById(
+            "contaId"
+        ).value;
+
+
+    const obj = {
+
+        id:
+            id || uid(),
+
+        reduzida:
+            document.getElementById(
+                "contaReduzida"
+            ).value.trim(),
+
+        analitica:
+            document.getElementById(
+                "contaAnalitica"
+            ).value.trim(),
+
+        descricao:
+            document.getElementById(
+                "contaDescricao"
+            ).value.trim(),
+
+        competencia:
+            document.getElementById(
+                "contaCompetencia"
+            ).value
+
+    };
+
+
+    if(
+        !obj.reduzida &&
+        !obj.analitica
+    ){
+
+        alert(
+            "Informe a conta reduzida ou analítica."
+        );
+
+        return;
+
+    }
+
+
+    if(id){
+
+        const index =
+            db.contas.findIndex(
+                x => x.id === id
+            );
+
+
+        if(index >= 0){
+
+            db.contas[index] =
+                obj;
+
+        }
+
+    }else{
+
+        db.contas.push(
+            obj
+        );
+
+    }
+
+
+    salvarDB();
+
+    fecharModal(
+        "modalConta"
+    );
+
+    renderContas();
+
+}
+
+
+function renderContas(){
+
+    const tbody =
+        document.getElementById(
+            "tabelaContas"
+        );
+
+
+    if(!tbody){
+        return;
+    }
+
+
+    const competencia =
+        competenciaLocal(
+            "filtroContas"
+        );
+
+
+    const busca =
+        document.getElementById(
+            "buscaContas"
+        )?.value || "";
+
+
+    let dados =
+        db.contas
+            .filter(filtrarCompetencia);
+
+
+    if(competencia){
+
+        dados =
+            dados.filter(
+                x =>
+                    x.competencia ===
+                    competencia
+            );
+
+    }
+
+
+    dados =
+        dados.filter(x =>
+            matchesBusca(
+                [
+                    x.reduzida,
+                    x.analitica,
+                    x.descricao
+                ],
+                busca
+            )
+        );
+
+
+    if(!dados.length){
+
+        tbody.innerHTML =
+            `<tr>
+                <td colspan="5"
+                    class="empty">
+
+                    Nenhuma conta encontrada.
+
+                </td>
+             </tr>`;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        dados.map(x => `
+
+            <tr>
+
+                <td>
+                    ${escapeHtml(x.reduzida)}
+                </td>
+
+                <td>
+                    ${escapeHtml(x.analitica)}
+                </td>
+
+                <td>
+                    ${escapeHtml(x.descricao)}
+                </td>
+
+                <td>
+                    ${escapeHtml(
+                        x.competencia || ""
+                    )}
+                </td>
+
+                <td>
+
+                    <div class="buttons">
+
+                        <button
+                            class="btn btn-small"
+                            onclick="abrirModalConta('${x.id}')">
+
+                            Editar
+
+                        </button>
+
+
+                        <button
+                            class="btn btn-small btn-danger"
+                            onclick="excluirConta('${x.id}')">
+
+                            Excluir
+
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `).join("");
+
+}
+
+
+function excluirConta(id){
+
+    if(
+        !confirm(
+            "Deseja excluir esta conta?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    db.contas =
+        db.contas.filter(
+            x => x.id !== id
+        );
+
+
+    salvarDB();
+
+    renderContas();
+
+}
+
+
+/* ============================================================
+   EMPRESAS
+============================================================ */
+
+function salvarEmpresa(){
+
+    const id =
+        document.getElementById(
+            "empresaId"
+        ).value;
+
+
+    const obj = {
+
+        id:
+            id || uid(),
+
+        cnpj:
+            document.getElementById(
+                "empresaCNPJ"
+            ).value.trim(),
+
+        apelido:
+            document.getElementById(
+                "empresaApelido"
+            ).value.trim(),
+
+        dominio:
+            document.getElementById(
+                "empresaDominio"
+            ).value.trim(),
+
+        tipo:
+            document.getElementById(
+                "empresaTipo"
+            ).value,
+
+        competencia:
+            document.getElementById(
+                "empresaCompetencia"
+            ).value
+
+    };
+
+
+    if(
+        !obj.cnpj &&
+        !obj.apelido
+    ){
+
+        alert(
+            "Informe o CNPJ ou apelido."
+        );
+
+        return;
+
+    }
+
+
+    if(id){
+
+        const index =
+            db.empresas.findIndex(
+                x => x.id === id
+            );
+
+
+        if(index >= 0){
+
+            db.empresas[index] =
+                obj;
+
+        }
+
+    }else{
+
+        db.empresas.push(
+            obj
+        );
+
+    }
+
+
+    salvarDB();
+
+    fecharModal(
+        "modalEmpresa"
+    );
+
+    renderEmpresas();
+
+}
+
+
+function renderEmpresas(){
+
+    const tbody =
+        document.getElementById(
+            "tabelaEmpresas"
+        );
+
+
+    if(!tbody){
+        return;
+    }
+
+
+    const competencia =
+        competenciaLocal(
+            "filtroEmpresas"
+        );
+
+
+    const busca =
+        document.getElementById(
+            "buscaEmpresas"
+        )?.value || "";
+
+
+    let dados =
+        db.empresas
+            .filter(filtrarCompetencia);
+
+
+    if(competencia){
+
+        dados =
+            dados.filter(
+                x =>
+                    x.competencia ===
+                    competencia
+            );
+
+    }
+
+
+    dados =
+        dados.filter(x =>
+            matchesBusca(
+                [
+                    x.cnpj,
+                    x.apelido,
+                    x.dominio,
+                    x.tipo
+                ],
+                busca
+            )
+        );
+
+
+    if(!dados.length){
+
+        tbody.innerHTML =
+            `<tr>
+                <td colspan="6"
+                    class="empty">
+
+                    Nenhuma empresa encontrada.
+
+                </td>
+             </tr>`;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        dados.map(x => `
+
+            <tr>
+
+                <td>
+                    ${escapeHtml(x.cnpj)}
+                </td>
+
+                <td>
+                    ${escapeHtml(x.apelido)}
+                </td>
+
+                <td>
+                    ${escapeHtml(x.dominio)}
+                </td>
+
+                <td>
+
+                    <span class="badge ${
+                        x.tipo === "MATRIZ"
+                            ? "green"
+                            : "blue"
+                    }">
+
+                        ${escapeHtml(x.tipo)}
+
+                    </span>
+
+                </td>
+
+                <td>
+                    ${escapeHtml(
+                        x.competencia || ""
+                    )}
+                </td>
+
+                <td>
+
+                    <div class="buttons">
+
+                        <button
+                            class="btn btn-small"
+                            onclick="abrirModalEmpresa('${x.id}')">
+
+                            Editar
+
+                        </button>
+
+
+                        <button
+                            class="btn btn-small btn-danger"
+                            onclick="excluirEmpresa('${x.id}')">
+
+                            Excluir
+
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `).join("");
+
+}
+
+
+function excluirEmpresa(id){
+
+    if(
+        !confirm(
+            "Deseja excluir esta empresa?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    db.empresas =
+        db.empresas.filter(
+            x => x.id !== id
+        );
+
+
+    salvarDB();
+
+    renderEmpresas();
+
+}
+
+
+/* ============================================================
+   CFOP
+============================================================ */
+
+function salvarCFOP(){
+
+    const id =
+        document.getElementById(
+            "cfopId"
+        ).value;
+
+
+    const obj = {
+
+        id:
+            id || uid(),
+
+        codigo:
+            document.getElementById(
+                "cfopCodigo"
+            ).value.trim(),
+
+        descricao:
+            document.getElementById(
+                "cfopDescricao"
+            ).value.trim(),
+
+        competencia:
+            document.getElementById(
+                "cfopCompetencia"
+            ).value
+
+    };
+
+
+    if(!obj.codigo){
+
+        alert(
+            "Informe o CFOP."
+        );
+
+        return;
+
+    }
+
+
+    if(id){
+
+        const index =
+            db.cfops.findIndex(
+                x => x.id === id
+            );
+
+
+        if(index >= 0){
+
+            db.cfops[index] =
+                obj;
+
+        }
+
+    }else{
+
+        db.cfops.push(
+            obj
+        );
+
+    }
+
+
+    salvarDB();
+
+    fecharModal(
+        "modalCFOP"
+    );
+
+    renderCFOPs();
+
+}
+
+
+function renderCFOPs(){
+
+    const tbody =
+        document.getElementById(
+            "tabelaCFOP"
+        );
+
+
+    if(!tbody){
+        return;
+    }
+
+
+    const competencia =
+        competenciaLocal(
+            "filtroCFOP"
+        );
+
+
+    const busca =
+        document.getElementById(
+            "buscaCFOP"
+        )?.value || "";
+
+
+    let dados =
+        db.cfops
+            .filter(filtrarCompetencia);
+
+
+    if(competencia){
+
+        dados =
+            dados.filter(
+                x =>
+                    x.competencia ===
+                    competencia
+            );
+
+    }
+
+
+    dados =
+        dados.filter(x =>
+            matchesBusca(
+                [
+                    x.codigo,
+                    x.descricao
+                ],
+                busca
+            )
+        );
+
+
+    if(!dados.length){
+
+        tbody.innerHTML =
+            `<tr>
+                <td colspan="4"
+                    class="empty">
+
+                    Nenhum CFOP encontrado.
+
+                </td>
+             </tr>`;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        dados.map(x => `
+
+            <tr>
+
+                <td>
+                    ${escapeHtml(x.codigo)}
+                </td>
+
+                <td>
+                    ${escapeHtml(x.descricao)}
+                </td>
+
+                <td>
+                    ${escapeHtml(
+                        x.competencia || ""
+                    )}
+                </td>
+
+                <td>
+
+                    <div class="buttons">
+
+                        <button
+                            class="btn btn-small"
+                            onclick="abrirModalCFOP('${x.id}')">
+
+                            Editar
+
+                        </button>
+
+
+                        <button
+                            class="btn btn-small btn-danger"
+                            onclick="excluirCFOP('${x.id}')">
+
+                            Excluir
+
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `).join("");
+
+}
+
+
+function excluirCFOP(id){
+
+    if(
+        !confirm(
+            "Deseja excluir este CFOP?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    db.cfops =
+        db.cfops.filter(
+            x => x.id !== id
+        );
+
+
+    salvarDB();
+
+    renderCFOPs();
+
+}
+
+
+/* ============================================================
+   NATUREZA KACYUMARA
+============================================================ */
+
+/*
+ * Mostra todos os acumuladores disponíveis
+ * para vínculo com a Natureza.
+ */
+
+function renderAcumuladoresNaturezaTemp(){
+
+    const div =
+        document.getElementById(
+            "listaAcumuladoresNatureza"
+        );
+
+
+    if(!div){
+        return;
+    }
+
+
+    if(!db.acumuladores.length){
+
+        div.innerHTML =
+            `<div class="vinculos-vazio">
+
+                Nenhum acumulador cadastrado.
+
+             </div>`;
+
+        return;
+
+    }
+
+
+    div.innerHTML =
+        db.acumuladores.map(
+            acumulador => {
+
+                const marcado =
+                    acumuladoresNaturezaTemp
+                        .includes(
+                            acumulador.id
+                        );
+
+
+                return `
+
+                    <div class="vinculo-item">
+
+                        <input
+                            type="checkbox"
+                            id="natAc_${escapeHtml(acumulador.id)}"
+                            value="${escapeHtml(acumulador.id)}"
+                            ${marcado ? "checked" : ""}
+                            onchange="alterarVinculoAcumuladorNatureza('${escapeHtml(acumulador.id)}',this.checked)">
+
+
+                        <label
+                            for="natAc_${escapeHtml(acumulador.id)}">
+
+                            <strong>
+                                ${escapeHtml(
+                                    acumulador.codigo
+                                )}
+                            </strong>
+
+                            -
+                            ${escapeHtml(
+                                acumulador.descricao
+                            )}
+
+                            <span class="badge ${
+                                acumulador.tipo === "ENTRADA"
+                                    ? "green"
+                                    : "blue"
+                            }">
+
+                                ${escapeHtml(
+                                    acumulador.tipo
+                                )}
+
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+}
+
+
+function alterarVinculoAcumuladorNatureza(
+    id,
+    marcado
+){
+
+    if(marcado){
+
+        if(
+            !acumuladoresNaturezaTemp
+                .includes(id)
+        ){
+
+            acumuladoresNaturezaTemp.push(
+                id
+            );
+
+        }
+
+    }else{
+
+        acumuladoresNaturezaTemp =
+            acumuladoresNaturezaTemp
+                .filter(
+                    x => x !== id
+                );
+
+    }
+
+}
+
+
+function abrirModalNatureza(id=null){
+
+    document.getElementById(
+        "naturezaId"
+    ).value = "";
+
+    document.getElementById(
+        "naturezaDescricao"
+    ).value = "";
+
+    document.getElementById(
+        "naturezaCompetencia"
+    ).value = "";
+
+
+    acumuladoresNaturezaTemp = [];
+
+
+    if(id){
+
+        const item =
+            db.naturezas.find(
+                x => x.id === id
+            );
+
+
+        if(!item){
+            return;
+        }
+
+
+        document.getElementById(
+            "naturezaId"
+        ).value =
+            item.id;
+
+
+        document.getElementById(
+            "naturezaDescricao"
+        ).value =
+            item.descricao;
+
+
+        document.getElementById(
+            "naturezaCompetencia"
+        ).value =
+            item.competencia || "";
+
+
+        /*
+         * Recupera os acumuladores vinculados.
+         */
+
+        acumuladoresNaturezaTemp =
+            Array.isArray(
+                item.acumuladores
+            )
+            ? [...item.acumuladores]
+            : [];
+
+    }
+
+
+    renderAcumuladoresNaturezaTemp();
+
+
+    abrirModal(
+        "modalNatureza"
+    );
+
+}
+
+
+function salvarNatureza(){
+
+    const id =
+        document.getElementById(
+            "naturezaId"
+        ).value;
+
+
+    const obj = {
+
+        id:
+            id || uid(),
+
+        descricao:
+            document.getElementById(
+                "naturezaDescricao"
+            ).value.trim(),
+
+        competencia:
+            document.getElementById(
+                "naturezaCompetencia"
+            ).value,
+
+        /*
+         * Aqui fica o vínculo com os acumuladores.
+         */
+
+        acumuladores:
+            [...acumuladoresNaturezaTemp]
+
+    };
+
+
+    if(!obj.descricao){
+
+        alert(
+            "Informe a descrição da Natureza."
+        );
+
+        return;
+
+    }
+
+
+    if(id){
+
+        const index =
+            db.naturezas.findIndex(
+                x => x.id === id
+            );
+
+
+        if(index >= 0){
+
+            db.naturezas[index] =
+                obj;
+
+        }
+
+    }else{
+
+        db.naturezas.push(
+            obj
+        );
+
+    }
+
+
+    salvarDB();
+
+    fecharModal(
+        "modalNatureza"
+    );
+
+    renderNaturezas();
+
+}
+
+
+function obterNomesAcumuladores(
+    ids
+){
+
+    if(!Array.isArray(ids)){
+        return [];
+    }
+
+
+    return ids.map(id => {
+
+        const item =
+            db.acumuladores.find(
+                a => a.id === id
+            );
+
+
+        if(!item){
+            return null;
+        }
+
+
+        return {
+
+            id:item.id,
+
+            codigo:item.codigo,
+
+            descricao:item.descricao
+
+        };
+
+    }).filter(Boolean);
+
+}
+
+
+function renderNaturezas(){
+
+    const tbody =
+        document.getElementById(
+            "tabelaNaturezas"
+        );
+
+
+    if(!tbody){
+        return;
+    }
+
+
+    const competencia =
+        competenciaLocal(
+            "filtroNaturezas"
+        );
+
+
+    const busca =
+        document.getElementById(
+            "buscaNaturezas"
+        )?.value || "";
+
+
+    let dados =
+        db.naturezas
+            .filter(filtrarCompetencia);
+
+
+    if(competencia){
+
+        dados =
+            dados.filter(
+                x =>
+                    x.competencia ===
+                    competencia
+            );
+
+    }
+
+
+    dados =
+        dados.filter(x => {
+
+            const acumuladores =
+                obterNomesAcumuladores(
+                    x.acumuladores || []
+                );
+
+
+            return matchesBusca(
+                [
+                    x.descricao,
+
+                    ...acumuladores.map(
+                        a =>
+                            a.codigo
+                    ),
+
+                    ...acumuladores.map(
+                        a =>
+                            a.descricao
+                    )
+
+                ],
+                busca
+            );
+
+        });
+
+
+    if(!dados.length){
+
+        tbody.innerHTML =
+            `<tr>
+
+                <td colspan="4"
+                    class="empty">
+
+                    Nenhuma natureza encontrada.
+
+                </td>
+
+             </tr>`;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        dados.map(x => {
+
+            const acumuladores =
+                obterNomesAcumuladores(
+                    x.acumuladores || []
+                );
+
+
+            let acumuladoresHtml;
+
+
+            if(!acumuladores.length){
+
+                acumuladoresHtml =
+                    `<span class="badge">
+                        Nenhum acumulador
+                     </span>`;
+
+            }else{
+
+                acumuladoresHtml =
+                    `<div class="vinculados-resumo">
+
+                        ${
+                            acumuladores
+                                .map(
+                                    a => `
+
+                                        <span class="badge blue">
+
+                                            ${escapeHtml(
+                                                a.codigo
+                                            )}
+                                            -
+                                            ${escapeHtml(
+                                                a.descricao
+                                            )}
+
+                                        </span>
+
+                                    `
+                                )
+                                .join("")
+                        }
+
+                     </div>`;
+
+            }
+
+
+            return `
+
+                <tr>
+
+                    <td>
+                        ${escapeHtml(
+                            x.descricao
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${acumuladoresHtml}
+                    </td>
+
+
+                    <td>
+                        ${escapeHtml(
+                            x.competencia || ""
+                        )}
+                    </td>
+
+
+                    <td>
+
+                        <div class="buttons">
+
+                            <button
+                                class="btn btn-small"
+                                onclick="abrirModalNatureza('${x.id}')">
+
+                                Editar
+
+                            </button>
+
+
+                            <button
+                                class="btn btn-small btn-danger"
+                                onclick="excluirNatureza('${x.id}')">
+
+                                Excluir
+
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join("");
+
+}
+
+
+function excluirNatureza(id){
+
+    if(
+        !confirm(
+            "Deseja excluir esta Natureza?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    db.naturezas =
+        db.naturezas.filter(
+            x => x.id !== id
+        );
+
+
+    salvarDB();
+
+    renderNaturezas();
+
+}
+
+
+/* ============================================================
+   HISTÓRICOS
+============================================================ */
+
+function salvarHistorico(){
+
+    const id =
+        document.getElementById(
+            "historicoId"
+        ).value;
+
+
+    const obj = {
+
+        id:
+            id || uid(),
+
+        numero:
+            document.getElementById(
+                "historicoNumero"
+            ).value.trim(),
+
+        descricao:
+            document.getElementById(
+                "historicoDescricao"
+            ).value.trim(),
+
+        competencia:
+            document.getElementById(
+                "historicoCompetencia"
+            ).value
+
+    };
+
+
+    if(
+        !obj.numero &&
+        !obj.descricao
+    ){
+
+        alert(
+            "Informe o número ou descrição."
+        );
+
+        return;
+
+    }
+
+
+    if(id){
+
+        const index =
+            db.historicos.findIndex(
+                x => x.id === id
+            );
+
+
+        if(index >= 0){
+
+            db.historicos[index] =
+                obj;
+
+        }
+
+    }else{
+
+        db.historicos.push(
+            obj
+        );
+
+    }
+
+
+    salvarDB();
+
+    fecharModal(
+        "modalHistorico"
+    );
+
+    renderHistoricos();
+
+}
+
+
+function renderHistoricos(){
+
+    const tbody =
+        document.getElementById(
+            "tabelaHistoricos"
+        );
+
+
+    if(!tbody){
+        return;
+    }
+
+
+    const competencia =
+        competenciaLocal(
+            "filtroHistoricos"
+        );
+
+
+    const busca =
+        document.getElementById(
+            "buscaHistoricos"
+        )?.value || "";
+
+
+    let dados =
+        db.historicos
+            .filter(filtrarCompetencia);
+
+
+    if(competencia){
+
+        dados =
+            dados.filter(
+                x =>
+                    x.competencia ===
+                    competencia
+            );
+
+    }
+
+
+    dados =
+        dados.filter(x =>
+            matchesBusca(
+                [
+                    x.numero,
+                    x.descricao
+                ],
+                busca
+            )
+        );
+
+
+    if(!dados.length){
+
+        tbody.innerHTML =
+            `<tr>
+
+                <td colspan="4"
+                    class="empty">
+
+                    Nenhum histórico encontrado.
+
+                </td>
+
+             </tr>`;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        dados.map(x => `
+
+            <tr>
+
+                <td>
+                    ${escapeHtml(
+                        x.numero
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHtml(
+                        x.descricao
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHtml(
+                        x.competencia || ""
+                    )}
+                </td>
+
+                <td>
+
+                    <div class="buttons">
+
+                        <button
+                            class="btn btn-small"
+                            onclick="abrirModalHistorico('${x.id}')">
+
+                            Editar
+
+                        </button>
+
+
+                        <button
+                            class="btn btn-small btn-danger"
+                            onclick="excluirHistorico('${x.id}')">
+
+                            Excluir
+
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `).join("");
+
+}
+
+
+function excluirHistorico(id){
+
+    if(
+        !confirm(
+            "Deseja excluir este histórico?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    db.historicos =
+        db.historicos.filter(
+            x => x.id !== id
+        );
+
+
+    salvarDB();
+
+    renderHistoricos();
+
+}
+
+
+/* ============================================================
+   IMPORTAÇÃO DE ACUMULADORES
+============================================================ */
+
+function importarAcumuladoresExcel(){
+
+    const arquivo =
+        document.getElementById(
+            "arquivoImportAcumuladores"
+        ).files[0];
+
+
+    const competencia =
+        document.getElementById(
+            "competenciaImportAcumuladores"
+        ).value;
+
+
+    if(!arquivo){
+
+        alert(
+            "Selecione um arquivo."
+        );
+
+        return;
+
+    }
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(e){
+
+            try{
+
+                const workbook =
+                    XLSX.read(
+                        e.target.result,
+                        {type:"array"}
+                    );
+
+
+                const sheet =
+                    workbook.Sheets[
+                        workbook.SheetNames[0]
+                    ];
+
+
+                const rows =
+                    XLSX.utils.sheet_to_json(
+                        sheet,
+                        {defval:""}
+                    );
+
+
+                if(!rows.length){
+
+                    alert(
+                        "A planilha está vazia."
+                    );
+
+                    return;
+
+                }
+
+
+                let importados = 0;
+
+
+                rows.forEach(row => {
+
+                    const mapa = {};
+
+
+                    Object.keys(row)
+                        .forEach(k => {
+
+                            mapa[
+                                normalizarCabecalho(k)
+                            ] = row[k];
+
+                        });
+
+
+                    const codigo =
+                        mapa.codigo ||
+                        mapa.codigodominio ||
+                        mapa.cod;
+
+
+                    const descricao =
+                        mapa.nome ||
+                        mapa.descricao ||
+                        mapa.descricaoo;
+
+
+                    if(!codigo){
+                        return;
+                    }
+
+
+                    const existente =
+                        db.acumuladores.find(
+                            x =>
+                                x.codigo ==
+                                String(codigo)
+                        );
+
+
+                    if(existente){
+
+                        existente.descricao =
+                            String(
+                                descricao || ""
+                            );
+
+
+                        if(competencia){
+
+                            existente.competencia =
+                                competencia;
+
+                        }
+
+                    }else{
+
+                        db.acumuladores.push({
+
+                            id:uid(),
+
+                            codigo:
+                                String(codigo),
+
+                            descricao:
+                                String(
+                                    descricao || ""
+                                ),
+
+                            tipo:
+                                "ENTRADA",
+
+                            debito:"",
+
+                            credito:"",
+
+                            cfops:[],
+
+                            competencia
+
+                        });
+
+                    }
+
+
+                    importados++;
+
+                });
+
+
+                salvarDB();
+
+
+                alert(
+                    importados +
+                    " acumulador(es) importado(s)."
+                );
+
+
+                document.getElementById(
+                    "arquivoImportAcumuladores"
+                ).value = "";
+
+
+                renderAcumuladores();
+
+
+                renderNaturezas();
+
+
+            }catch(err){
+
+                console.error(err);
+
+                alert(
+                    "Erro ao importar a planilha."
+                );
+
+            }
+
+        };
+
+
+    reader.readAsArrayBuffer(
+        arquivo
+    );
+
+}
+
+
+/* ============================================================
+   IMPORTAÇÃO DE CONTAS
+============================================================ */
+
+function importarContasExcel(){
+
+    const arquivo =
+        document.getElementById(
+            "arquivoImportContas"
+        ).files[0];
+
+
+    const competencia =
+        document.getElementById(
+            "competenciaImportContas"
+        ).value;
+
+
+    if(!arquivo){
+
+        alert(
+            "Selecione um arquivo."
+        );
+
+        return;
+
+    }
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(e){
+
+            try{
+
+                const workbook =
+                    XLSX.read(
+                        e.target.result,
+                        {type:"array"}
+                    );
+
+
+                const sheet =
+                    workbook.Sheets[
+                        workbook.SheetNames[0]
+                    ];
+
+
+                const rows =
+                    XLSX.utils.sheet_to_json(
+                        sheet,
+                        {defval:""}
+                    );
+
+
+                let importados = 0;
+
+
+                rows.forEach(row => {
+
+                    const mapa = {};
+
+
+                    Object.keys(row)
+                        .forEach(k => {
+
+                            mapa[
+                                normalizarCabecalho(k)
+                            ] = row[k];
+
+                        });
+
+
+                    const reduzida =
+                        mapa.reduzida ||
+                        mapa.contareduzida ||
+                        mapa.red;
+
+
+                    const analitica =
+                        mapa.analitica ||
+                        mapa.contaanalitica ||
+                        mapa.conta;
+
+
+                    const descricao =
+                        mapa.descricao ||
+                        mapa.nome;
+
+
+                    if(
+                        !reduzida &&
+                        !analitica
+                    ){
+
+                        return;
+
+                    }
+
+
+                    const existente =
+                        db.contas.find(
+                            x =>
+                                String(
+                                    x.reduzida
+                                ) ===
+                                String(
+                                    reduzida || ""
+                                ) &&
+
+                                String(
+                                    x.analitica
+                                ) ===
+                                String(
+                                    analitica || ""
+                                )
+                        );
+
+
+                    if(existente){
+
+                        existente.descricao =
+                            String(
+                                descricao || ""
+                            );
+
+
+                        if(competencia){
+
+                            existente.competencia =
+                                competencia;
+
+                        }
+
+                    }else{
+
+                        db.contas.push({
+
+                            id:uid(),
+
+                            reduzida:
+                                String(
+                                    reduzida || ""
+                                ),
+
+                            analitica:
+                                String(
+                                    analitica || ""
+                                ),
+
+                            descricao:
+                                String(
+                                    descricao || ""
+                                ),
+
+                            competencia
+
+                        });
+
+                    }
+
+
+                    importados++;
+
+                });
+
+
+                salvarDB();
+
+
+                alert(
+                    importados +
+                    " conta(s) importada(s)."
+                );
+
+
+                document.getElementById(
+                    "arquivoImportContas"
+                ).value = "";
+
+
+                renderContas();
+
+
+            }catch(err){
+
+                console.error(err);
+
+                alert(
+                    "Erro ao importar contas."
+                );
+
+            }
+
+        };
+
+
+    reader.readAsArrayBuffer(
+        arquivo
+    );
+
+}
+
+
+/* ============================================================
+   IMPORTAÇÃO CFOP
+============================================================ */
+
+function importarCFOPExcel(){
+
+    const arquivo =
+        document.getElementById(
+            "arquivoImportCFOP"
+        ).files[0];
+
+
+    const competencia =
+        document.getElementById(
+            "competenciaImportCFOP"
+        ).value;
+
+
+    if(!arquivo){
+
+        alert(
+            "Selecione um arquivo."
+        );
+
+        return;
+
+    }
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(e){
+
+            try{
+
+                const workbook =
+                    XLSX.read(
+                        e.target.result,
+                        {type:"array"}
+                    );
+
+
+                const sheet =
+                    workbook.Sheets[
+                        workbook.SheetNames[0]
+                    ];
+
+
+                const rows =
+                    XLSX.utils.sheet_to_json(
+                        sheet,
+                        {defval:""}
+                    );
+
+
+                let importados = 0;
+
+
+                rows.forEach(row => {
+
+                    const mapa = {};
+
+
+                    Object.keys(row)
+                        .forEach(k => {
+
+                            mapa[
+                                normalizarCabecalho(k)
+                            ] = row[k];
+
+                        });
+
+
+                    const codigo =
+                        mapa.cfop ||
+                        mapa.codigo;
+
+
+                    const descricao =
+                        mapa.descricao ||
+                        mapa.nome;
+
+
+                    if(!codigo){
+                        return;
+                    }
+
+
+                    const codigoTexto =
+                        String(codigo)
+                            .replace(
+                                /\.0$/,
+                                ""
+                            );
+
+
+                    const existente =
+                        db.cfops.find(
+                            x =>
+                                String(
+                                    x.codigo
+                                ) ===
+                                codigoTexto
+                        );
+
+
+                    if(existente){
+
+                        existente.descricao =
+                            String(
+                                descricao || ""
+                            );
+
+
+                        if(competencia){
+
+                            existente.competencia =
+                                competencia;
+
+                        }
+
+                    }else{
+
+                        db.cfops.push({
+
+                            id:uid(),
+
+                            codigo:
+                                codigoTexto,
+
+                            descricao:
+                                String(
+                                    descricao || ""
+                                ),
+
+                            competencia
+
+                        });
+
+                    }
+
+
+                    importados++;
+
+                });
+
+
+                salvarDB();
+
+
+                alert(
+                    importados +
+                    " CFOP(s) importado(s)."
+                );
+
+
+                document.getElementById(
+                    "arquivoImportCFOP"
+                ).value = "";
+
+
+                renderCFOPs();
+
+            }catch(err){
+
+                console.error(err);
+
+                alert(
+                    "Erro ao importar CFOP."
+                );
+
+            }
+
+        };
+
+
+    reader.readAsArrayBuffer(
+        arquivo
+    );
+
+}
+
+
+/* ============================================================
+   SPED
+============================================================ */
+
+function detectarCompetenciaSPED(texto){
+
+    const m =
+        texto.match(
+            /\|0000\|.*?\|(\d{2})(\d{2})(\d{4})\|(\d{2})(\d{2})(\d{4})\|/
+        );
+
+
+    if(m){
+
+        return (
+            m[3] +
+            "-" +
+            m[2]
+        );
+
+    }
+
+
+    const m2 =
+        texto.match(
+            /\|0000\|[^|]*\|[^|]*\|(\d{2})(\d{2})(\d{4})\|/
+        );
+
+
+    if(m2){
+
+        return (
+            m2[3] +
+            "-" +
+            m2[2]
+        );
+
+    }
+
+
+    return "";
+
+}
+
+
+function numeroSPED(valor){
+
+    return valorNumero(valor);
+
+}
+
+
+function parsearSPED(
+    texto,
+    arquivoNome
+){
+
+    const linhas =
+        texto.split(
+            /\r?\n/
+        );
+
+
+    const competencia =
+        detectarCompetenciaSPED(
+            texto
+        );
+
+
+    const registros = [];
+
+
+    linhas.forEach(
+        linha => {
+
+            if(!linha.trim()){
+                return;
+            }
+
+
+            const campos =
+                linha.split("|");
+
+
+            const registro =
+                campos[1] || "";
+
+
+            if(
+                registro === "C190"
+            ){
+
+                const cst =
+                    campos[2] || "";
+
+
+                const cfop =
+                    campos[3] || "";
+
+
+                const aliquota =
+                    numeroSPED(
+                        campos[4]
+                    );
+
+
+                const valorOperacao =
+                    numeroSPED(
+                        campos[5]
+                    );
+
+
+                const baseICMS =
+                    numeroSPED(
+                        campos[6]
+                    );
+
+
+                const valorICMS =
+                    numeroSPED(
+                        campos[7]
+                    );
+
+
+                const baseICMSST =
+                    numeroSPED(
+                        campos[8]
+                    );
+
+
+                const valorICMSST =
+                    numeroSPED(
+                        campos[9]
+                    );
+
+
+                const isentas = 0;
+
+
+                const outras =
+                    Math.max(
+                        valorOperacao -
+                        baseICMS,
+                        0
+                    );
+
+
+                registros.push({
+
+                    id:uid(),
+
+                    arquivo:
+                        arquivoNome,
+
+                    competencia,
+
+                    registro:
+                        "C190",
+
+                    cst,
+
+                    cfop,
+
+                    aliquota,
+
+                    valorOperacao,
+
+                    baseICMS,
+
+                    valorICMS,
+
+                    baseICMSST,
+
+                    valorICMSST,
+
+                    isentas,
+
+                    outras
+
+                });
+
+            }
+
+        }
+    );
+
+
+    return {
+
+        competencia,
+
+        registros
+
+    };
+
+}
+
+
+function importarSPEDArquivo(
+    inputId
+){
+
+    const input =
+        document.getElementById(
+            inputId
+        );
+
+
+    const arquivo =
+        input?.files?.[0];
+
+
+    if(!arquivo){
+
+        alert(
+            "Selecione um arquivo SPED."
+        );
+
+        return;
+
+    }
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(e){
+
+            try{
+
+                const texto =
+                    new TextDecoder(
+                        "windows-1252"
+                    ).decode(
+                        e.target.result
+                    );
+
+
+                const nome =
+                    arquivo.name;
+
+
+                const resultado =
+                    parsearSPED(
+                        texto,
+                        nome
+                    );
+
+
+                const competencia =
+                    resultado.competencia;
+
+
+                /*
+                 * Sobrescreve o mesmo arquivo.
+                 */
+
+                db.sped =
+                    db.sped.filter(
+                        x =>
+                            x.arquivo !==
+                            nome
+                    );
+
+
+                db.spedRegistros =
+                    db.spedRegistros.filter(
+                        x =>
+                            x.arquivo !==
+                            nome
+                    );
+
+
+                db.sped.push({
+
+                    id:uid(),
+
+                    arquivo:nome,
+
+                    competencia,
+
+                    importadoEm:
+                        new Date()
+                            .toLocaleString(
+                                "pt-BR"
+                            ),
+
+                    registros:
+                        resultado.registros.length,
+
+                    registrosC190:
+                        resultado.registros.length
+
+                });
+
+
+                db.spedRegistros.push(
+                    ...resultado.registros
+                );
+
+
+                salvarDB();
+
+
+                alert(
+
+                    "SPED importado com sucesso.\n\n" +
+
+                    "Arquivo: " +
+                    nome +
+
+                    "\nCompetência: " +
+                    (
+                        competencia ||
+                        "não identificada"
+                    ) +
+
+                    "\nRegistros C190: " +
+                    resultado.registros.length
+
+                );
+
+
+                input.value = "";
+
+
+                renderSPED();
+
+                renderICMS();
+
+            }catch(err){
+
+                console.error(err);
+
+                alert(
+                    "Erro ao importar o SPED."
+                );
+
+            }
+
+        };
+
+
+    reader.readAsArrayBuffer(
+        arquivo
+    );
+
+}
+
+
+function renderSPED(){
+
+    const tbody =
+        document.getElementById(
+            "tabelaSPED"
+        );
+
+
+    if(!tbody){
+        return;
+    }
+
+
+    const competencia =
+        competenciaLocal(
+            "filtroSPED"
+        );
+
+
+    const busca =
+        document.getElementById(
+            "buscaSPED"
+        )?.value || "";
+
+
+    let dados =
+        db.sped.filter(
+            filtrarCompetencia
+        );
+
+
+    if(competencia){
+
+        dados =
+            dados.filter(
+                x =>
+                    x.competencia ===
+                    competencia
+            );
+
+    }
+
+
+    dados =
+        dados.filter(x =>
+            matchesBusca(
+                [x.arquivo],
+                busca
+            )
+        );
+
+
+    if(!dados.length){
+
+        tbody.innerHTML =
+            `<tr>
+
+                <td colspan="5"
+                    class="empty">
+
+                    Nenhum arquivo SPED encontrado.
+
+                </td>
+
+             </tr>`;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        dados.map(x => `
+
+            <tr>
+
+                <td>
+                    ${escapeHtml(
+                        x.arquivo
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHtml(
+                        x.competencia || ""
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHtml(
+                        x.importadoEm || ""
+                    )}
+                </td>
+
+                <td>
+                    ${x.registrosC190 || 0}
+                </td>
+
+                <td>
+
+                    <button
+                        class="btn btn-small btn-danger"
+                        onclick="excluirSPED('${x.id}')">
+
+                        Excluir
+
+                    </button>
+
+                </td>
+
+            </tr>
+
+        `).join("");
+
+}
+
+
+function excluirSPED(id){
+
+    const arquivo =
+        db.sped.find(
+            x => x.id === id
+        )?.arquivo;
+
+
+    if(
+        !confirm(
+            "Deseja excluir este arquivo SPED e seus registros?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    db.sped =
+        db.sped.filter(
+            x => x.id !== id
+        );
+
+
+    if(arquivo){
+
+        db.spedRegistros =
+            db.spedRegistros.filter(
+                x =>
+                    x.arquivo !==
+                    arquivo
+            );
+
+    }
+
+
+    salvarDB();
+
+    renderSPED();
+
+    renderICMS();
+
+}
+
+
+/* ============================================================
+   ICMS
+============================================================ */
+
+function renderICMS(){
+
+    const tbody =
+        document.getElementById(
+            "tabelaICMS"
+        );
+
+
+    if(!tbody){
+        return;
+    }
+
+
+    const competencia =
+        competenciaLocal(
+            "filtroICMS"
+        );
+
+
+    const busca =
+        document.getElementById(
+            "buscaICMSCFOP"
+        )?.value || "";
+
+
+    let registros =
+        db.spedRegistros.filter(
+            filtrarCompetencia
+        );
+
+
+    if(competencia){
+
+        registros =
+            registros.filter(
+                x =>
+                    x.competencia ===
+                    competencia
+            );
+
+    }
+
+
+    if(busca){
+
+        registros =
+            registros.filter(
+                x =>
+                    normalizarTexto(
+                        x.cfop
+                    ).includes(
+                        normalizarTexto(
+                            busca
+                        )
+                    )
+            );
+
+    }
+
+
+    const grupos = {};
+
+
+    registros.forEach(x => {
+
+        const chave =
+            (x.competencia || "") +
+            "|" +
+            (x.cfop || "");
+
+
+        if(!grupos[chave]){
+
+            grupos[chave] = {
+
+                competencia:
+                    x.competencia,
+
+                cfop:
+                    x.cfop,
+
+                valorOperacao:0,
+
+                baseICMS:0,
+
+                valorICMS:0,
+
+                isentas:0,
+
+                outras:0
+
+            };
+
+        }
+
+
+        grupos[chave]
+            .valorOperacao +=
+                valorNumero(
+                    x.valorOperacao
+                );
+
+
+        grupos[chave]
+            .baseICMS +=
+                valorNumero(
+                    x.baseICMS
+                );
+
+
+        grupos[chave]
+            .valorICMS +=
+                valorNumero(
+                    x.valorICMS
+                );
+
+
+        grupos[chave]
+            .isentas +=
+                valorNumero(
+                    x.isentas
+                );
+
+
+        grupos[chave]
+            .outras +=
+                valorNumero(
+                    x.outras
+                );
+
+    });
+
+
+    const dados =
+        Object.values(
+            grupos
+        );
+
+
+    if(!dados.length){
+
+        tbody.innerHTML =
+            `<tr>
+
+                <td colspan="7"
+                    class="empty">
+
+                    Nenhum registro encontrado.
+
+                </td>
+
+             </tr>`;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        dados.map(x => `
+
+            <tr>
+
+                <td>
+                    ${escapeHtml(
+                        x.competencia || ""
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHtml(
+                        x.cfop
+                    )}
+                </td>
+
+                <td>
+                    ${moeda(
+                        x.valorOperacao
+                    )}
+                </td>
+
+                <td>
+                    ${moeda(
+                        x.baseICMS
+                    )}
+                </td>
+
+                <td>
+                    ${moeda(
+                        x.valorICMS
+                    )}
+                </td>
+
+                <td>
+                    ${moeda(
+                        x.isentas
+                    )}
+                </td>
+
+                <td>
+                    ${moeda(
+                        x.outras
+                    )}
+                </td>
+
+            </tr>
+
+        `).join("");
+
+}
+
+
+/* ============================================================
+   LANÇAMENTOS
+============================================================ */
+
+function carregarSelectsLancamento(){
+
+    const acumulador =
+        document.getElementById(
+            "lancAcumulador"
+        );
+
+
+    const debito =
+        document.getElementById(
+            "lancDebito"
+        );
+
+
+    const credito =
+        document.getElementById(
+            "lancCredito"
+        );
+
+
+    const historico =
+        document.getElementById(
+            "lancHistorico"
+        );
+
+
+    if(!acumulador){
+        return;
+    }
+
+
+    acumulador.innerHTML =
+        `<option value="">
+            Selecione
+        </option>` +
+
+        db.acumuladores.map(x => `
+
+            <option value="${escapeHtml(x.id)}">
+
+                ${escapeHtml(x.codigo)}
+                -
+                ${escapeHtml(x.descricao)}
+
+            </option>
+
+        `).join("");
+
+
+    const contasHTML =
+        `<option value="">
+            Selecione
+        </option>` +
+
+        db.contas.map(x => `
+
+            <option value="${escapeHtml(x.id)}">
+
+                ${escapeHtml(x.reduzida)}
+                -
+                ${escapeHtml(x.descricao)}
+
+            </option>
+
+        `).join("");
+
+
+    debito.innerHTML =
+        contasHTML;
+
+    credito.innerHTML =
+        contasHTML;
+
+
+    historico.innerHTML =
+        `<option value="">
+            Selecione
+        </option>` +
+
+        db.historicos.map(x => `
+
+            <option value="${escapeHtml(x.id)}">
+
+                ${escapeHtml(x.numero)}
+                -
+                ${escapeHtml(x.descricao)}
+
+            </option>
+
+        `).join("");
+
+}
+
+
+function gerarLancamento(){
+
+    const data =
+        document.getElementById(
+            "lancData"
+        ).value;
+
+
+    const tipo =
+        document.getElementById(
+            "lancTipo"
+        ).value;
+
+
+    const valor =
+        valorNumero(
+            document.getElementById(
+                "lancValor"
+            ).value
+        );
+
+
+    const acumuladorId =
+        document.getElementById(
+            "lancAcumulador"
+        ).value;
+
+
+    const debitoId =
+        document.getElementById(
+            "lancDebito"
+        ).value;
+
+
+    const creditoId =
+        document.getElementById(
+            "lancCredito"
+        ).value;
+
+
+    const historicoId =
+        document.getElementById(
+            "lancHistorico"
+        ).value;
+
+
+    const complemento =
+        document.getElementById(
+            "lancComplemento"
+        ).value.trim();
+
+
+    if(!data || !valor){
+
+        alert(
+            "Informe a data e o valor."
+        );
+
+        return;
+
+    }
+
+
+    const acumulador =
+        db.acumuladores.find(
+            x => x.id === acumuladorId
+        );
+
+
+    const debito =
+        db.contas.find(
+            x => x.id === debitoId
+        );
+
+
+    const credito =
+        db.contas.find(
+            x => x.id === creditoId
+        );
+
+
+    const historico =
+        db.historicos.find(
+            x => x.id === historicoId
+        );
+
+
+    db.lancamentos.push({
+
+        id:uid(),
+
+        data,
+
+        competencia:
+            competenciaDaData(
+                data
+            ),
+
+        tipo,
+
+        acumulador:
+            acumulador
+            ?
+                acumulador.codigo +
+                " - " +
+                acumulador.descricao
+            :
+                "",
+
+        historico:
+            historico
+            ?
+                historico.numero +
+                " - " +
+                historico.descricao
+            :
+                "",
+
+        debito:
+            debito
+            ?
+                debito.reduzida +
+                " - " +
+                debito.descricao
+            :
+                "",
+
+        credito:
+            credito
+            ?
+                credito.reduzida +
+                " - " +
+                credito.descricao
+            :
+                "",
+
+        valor,
+
+        complemento
+
+    });
+
+
+    salvarDB();
+
+
+    alert(
+        "Lançamento gerado com sucesso."
+    );
+
+
+    document.getElementById(
+        "lancValor"
+    ).value = "";
+
+
+    document.getElementById(
+        "lancComplemento"
+    ).value = "";
+
+
+    renderLancamentos();
+
+}
+
+
+function renderLancamentos(){
+
+    const tbody =
+        document.getElementById(
+            "tabelaLancamentos"
+        );
+
+
+    if(!tbody){
+        return;
+    }
+
+
+    const competencia =
+        competenciaLocal(
+            "filtroLancamentos"
+        );
+
+
+    const busca =
+        document.getElementById(
+            "buscaLancamentos"
+        )?.value || "";
+
+
+    let dados =
+        db.lancamentos.filter(
+            filtrarCompetencia
+        );
+
+
+    if(competencia){
+
+        dados =
+            dados.filter(
+                x =>
+                    x.competencia ===
+                    competencia
+            );
+
+    }
+
+
+    dados =
+        dados.filter(x =>
+            matchesBusca(
+                [
+                    x.historico,
+                    x.debito,
+                    x.credito,
+                    x.acumulador,
+                    x.complemento
+                ],
+                busca
+            )
+        );
+
+
+    if(!dados.length){
+
+        tbody.innerHTML =
+            `<tr>
+
+                <td colspan="10"
+                    class="empty">
+
+                    Nenhum lançamento encontrado.
+
+                </td>
+
+             </tr>`;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        dados.map(x => `
+
+            <tr>
+
+                <td>
+                    ${escapeHtml(x.data)}
+                </td>
+
+                <td>
+                    ${escapeHtml(x.competencia)}
+                </td>
+
+                <td>
+                    ${escapeHtml(x.tipo)}
+                </td>
+
+                <td>
+                    ${escapeHtml(x.acumulador)}
+                </td>
+
+                <td>
+                    ${escapeHtml(x.historico)}
+                </td>
+
+                <td>
+                    ${escapeHtml(x.debito)}
+                </td>
+
+                <td>
+                    ${escapeHtml(x.credito)}
+                </td>
+
+                <td>
+                    ${moeda(x.valor)}
+                </td>
+
+                <td>
+                    ${escapeHtml(x.complemento)}
+                </td>
+
+                <td>
+
+                    <button
+                        class="btn btn-small btn-danger"
+                        onclick="excluirLancamento('${x.id}')">
+
+                        Excluir
+
+                    </button>
+
+                </td>
+
+            </tr>
+
+        `).join("");
+
+}
+
+
+function excluirLancamento(id){
+
+    if(
+        !confirm(
+            "Deseja excluir este lançamento?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    db.lancamentos =
+        db.lancamentos.filter(
+            x => x.id !== id
+        );
+
+
+    salvarDB();
+
+    renderLancamentos();
+
+}
+
+
+function exportarLancamentosExcel(){
+
+    if(
+        !db.lancamentos.length
+    ){
+
+        alert(
+            "Não existem lançamentos para exportar."
+        );
+
+        return;
+
+    }
+
+
+    const dados =
+        db.lancamentos.map(x => ({
+
+            Data:
+                x.data,
+
+            Competência:
+                x.competencia,
+
+            Tipo:
+                x.tipo,
+
+            Acumulador:
+                x.acumulador,
+
+            Histórico:
+                x.historico,
+
+            Débito:
+                x.debito,
+
+            Crédito:
+                x.credito,
+
+            Valor:
+                x.valor,
+
+            Complemento:
+                x.complemento
+
+        }));
+
+
+    const ws =
+        XLSX.utils.json_to_sheet(
+            dados
+        );
+
+
+    const wb =
+        XLSX.utils.book_new();
+
+
+    XLSX.utils.book_append_sheet(
+        wb,
+        ws,
+        "Lançamentos"
+    );
+
+
+    XLSX.writeFile(
+        wb,
+        "lancamentos_contabeis.xlsx"
+    );
+
+}
+
+
+/* ============================================================
+   INICIALIZAÇÃO
+============================================================ */
+
+function inicializar(){
+
+    /*
+     * Abre o menu Cadastros por padrão.
+     */
+
+    document.getElementById(
+        "submenuCadastros"
+    ).classList.add("open");
+
+
+    document.getElementById(
+        "setaCadastros"
+    ).textContent = "▼";
+
+
+    carregarSelectContasAcumulador();
+
+    carregarSelectCFOPAcumulador();
+
+    carregarSelectsLancamento();
+
+
+    renderAcumuladores();
+
+    renderContas();
+
+    renderEmpresas();
+
+    renderCFOPs();
+
+    renderNaturezas();
+
+    renderHistoricos();
+
+    renderICMS();
+
+    renderSPED();
+
+    renderLancamentos();
+
+    atualizarDashboard();
+
+}
+
+
+window.addEventListener(
+    "load",
+    inicializar
+);
+
+
+/* ============================================================
+   FECHAR MODAL CLICANDO FORA
+============================================================ */
+
+document.querySelectorAll(
+    ".modal"
+).forEach(modal => {
+
+    modal.addEventListener(
+        "click",
+        function(e){
+
+            if(e.target === modal){
+
+                modal.classList.remove(
+                    "show"
+                );
+
+            }
+
+        }
+    );
+
+});
+
+</script>
+
+</body>
+</html>
